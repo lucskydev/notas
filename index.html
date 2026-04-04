@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notas • Arquivo Pessoal</title>
+<title>Arquivo Pessoal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Special+Elite&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <style>
@@ -17,6 +17,8 @@
     --accent-soft: #c4673a;
     --locked: #3a5a8b;
     --locked-soft: #5a7ab0;
+    --file-color: #2d6b4a;
+    --file-soft: #4a9a6e;
     --border: #c8b89a;
     --shadow: rgba(26,20,16,0.12);
     --tag-bg: #e8dcc8;
@@ -29,13 +31,10 @@
     background: var(--paper);
     color: var(--ink);
     min-height: 100vh;
-    background-image:
-      repeating-linear-gradient(
-        transparent,
-        transparent 27px,
-        rgba(139,90,60,0.07) 27px,
-        rgba(139,90,60,0.07) 28px
-      );
+    background-image: repeating-linear-gradient(
+      transparent, transparent 27px,
+      rgba(139,90,60,0.07) 27px, rgba(139,90,60,0.07) 28px
+    );
   }
 
   /* ── HEADER ── */
@@ -52,7 +51,6 @@
     top: 0;
     z-index: 100;
   }
-
   .logo {
     font-family: 'Playfair Display', serif;
     font-size: 1.4rem;
@@ -61,9 +59,7 @@
     align-items: center;
     gap: 0.6rem;
   }
-  .logo-icon { font-size: 1.1rem; opacity: 0.8; }
-
-  .header-actions { display: flex; gap: 0.75rem; align-items: center; }
+  .header-actions { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
 
   .btn-primary {
     background: var(--accent);
@@ -77,6 +73,8 @@
     transition: background 0.2s;
   }
   .btn-primary:hover { background: var(--accent-soft); }
+  .btn-primary.file-btn { background: var(--file-color); }
+  .btn-primary.file-btn:hover { background: var(--file-soft); }
 
   .supabase-status {
     font-family: 'Special Elite', cursive;
@@ -87,12 +85,7 @@
     align-items: center;
     gap: 0.4rem;
   }
-  .status-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: #aaa;
-    transition: background 0.3s;
-  }
+  .status-dot { width:7px; height:7px; border-radius:50%; background:#aaa; transition:background 0.3s; }
   .status-dot.connected { background: #6fcf6f; }
   .status-dot.error { background: #e07070; }
 
@@ -113,7 +106,6 @@
     height: calc(100vh - 64px);
     overflow-y: auto;
   }
-
   .sidebar-section-title {
     font-family: 'Special Elite', cursive;
     font-size: 0.7rem;
@@ -124,9 +116,7 @@
     padding-bottom: 0.4rem;
     border-bottom: 1px solid var(--border);
   }
-
   .tag-list { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 1.5rem; }
-
   .tag-item {
     display: flex;
     align-items: center;
@@ -140,12 +130,8 @@
     color: var(--ink-light);
     transition: background 0.15s;
   }
-  .tag-item:hover, .tag-item.active {
-    background: var(--tag-bg);
-    color: var(--ink);
-  }
+  .tag-item:hover, .tag-item.active { background: var(--tag-bg); color: var(--ink); }
   .tag-item.active { border-left: 2px solid var(--accent); }
-
   .tag-count {
     background: var(--border);
     color: var(--ink-faint);
@@ -153,7 +139,6 @@
     font-size: 0.7rem;
     border-radius: 10px;
   }
-
   .tag-add-form { display: flex; gap: 0.4rem; margin-bottom: 1.5rem; }
   .tag-add-form input {
     flex: 1;
@@ -187,10 +172,10 @@
     margin-bottom: 1.5rem;
     flex-wrap: wrap;
   }
-
   .search-box {
     flex: 1;
     min-width: 200px;
+    max-width: 380px;
     background: white;
     border: 1px solid var(--border);
     padding: 0.5rem 0.75rem;
@@ -198,10 +183,8 @@
     font-size: 0.9rem;
     color: var(--ink);
     outline: none;
-    max-width: 380px;
   }
   .search-box:focus { border-color: var(--ink-light); }
-
   .filter-label {
     font-family: 'Special Elite', cursive;
     font-size: 0.78rem;
@@ -209,13 +192,14 @@
     color: var(--ink-faint);
   }
 
-  /* ── NOTES GRID ── */
-  .notes-grid {
+  /* ── CONTENT GRID (notes + files mixed) ── */
+  .content-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.25rem;
   }
 
+  /* ── NOTE CARD ── */
   .note-card {
     background: white;
     border: 1px solid var(--border);
@@ -225,21 +209,30 @@
     transition: transform 0.15s, box-shadow 0.15s;
     cursor: pointer;
   }
-  .note-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 3px 5px 14px var(--shadow);
-  }
+  .note-card:hover { transform: translateY(-2px); box-shadow: 3px 5px 14px var(--shadow); }
   .note-card.locked-card { border-top: 3px solid var(--locked); }
   .note-card.unlocked-card { border-top: 3px solid var(--accent); }
 
-  .note-card-header {
+  /* ── FILE CARD ── */
+  .file-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--file-color);
+    padding: 1.2rem;
+    position: relative;
+    box-shadow: 2px 3px 8px var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+  }
+  .file-card:hover { transform: translateY(-2px); box-shadow: 3px 5px 14px var(--shadow); }
+
+  .card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 0.75rem;
   }
-
-  .note-title {
+  .card-title {
     font-family: 'Playfair Display', serif;
     font-size: 1.05rem;
     font-weight: 600;
@@ -247,13 +240,9 @@
     line-height: 1.3;
     flex: 1;
     margin-right: 0.5rem;
+    word-break: break-word;
   }
-
-  .lock-badge {
-    font-size: 0.85rem;
-    opacity: 0.6;
-    flex-shrink: 0;
-  }
+  .card-badge { font-size: 0.85rem; opacity: 0.6; flex-shrink: 0; }
 
   .note-preview {
     font-size: 0.85rem;
@@ -265,7 +254,6 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-
   .note-preview.encrypted-preview {
     font-family: 'Special Elite', cursive;
     font-size: 0.75rem;
@@ -274,16 +262,48 @@
     opacity: 0.7;
   }
 
-  .note-footer {
+  /* file-specific info */
+  .file-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .file-ext-badge {
+    background: var(--file-color);
+    color: white;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    text-transform: uppercase;
+  }
+  .file-size {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .file-desc {
+    font-size: 0.82rem;
+    color: var(--ink-light);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-style: italic;
+  }
+
+  .card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.4rem;
   }
-
-  .note-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-
+  .card-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
   .tag-chip {
     background: var(--tag-bg);
     color: var(--ink-light);
@@ -293,15 +313,13 @@
     letter-spacing: 0.06em;
     border-radius: 2px;
   }
-
-  .note-date {
+  .card-date {
     font-family: 'Special Elite', cursive;
     font-size: 0.68rem;
     color: var(--ink-faint);
     letter-spacing: 0.04em;
   }
-
-  .note-actions {
+  .card-actions {
     position: absolute;
     top: 0.6rem;
     right: 0.6rem;
@@ -310,7 +328,8 @@
     opacity: 0;
     transition: opacity 0.15s;
   }
-  .note-card:hover .note-actions { opacity: 1; }
+  .note-card:hover .card-actions,
+  .file-card:hover .card-actions { opacity: 1; }
 
   .icon-btn {
     background: transparent;
@@ -323,6 +342,23 @@
   }
   .icon-btn:hover { color: var(--accent); }
   .icon-btn.delete:hover { color: #c0392b; }
+  .icon-btn.download:hover { color: var(--file-color); }
+
+  /* type label in grid */
+  .type-divider {
+    grid-column: 1/-1;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
 
   .empty-state {
     grid-column: 1/-1;
@@ -330,15 +366,10 @@
     padding: 3rem;
     color: var(--ink-faint);
   }
-  .empty-state h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    font-style: italic;
-    margin-bottom: 0.5rem;
-  }
-  .empty-state p { font-size: 0.9rem; }
+  .empty-state h3 { font-family:'Playfair Display',serif; font-size:1.3rem; font-style:italic; margin-bottom:0.5rem; }
+  .empty-state p { font-size:0.9rem; }
 
-  /* ── MODAL OVERLAY ── */
+  /* ── OVERLAY ── */
   .overlay {
     display: none;
     position: fixed;
@@ -363,7 +394,6 @@
     display: flex;
     flex-direction: column;
   }
-
   .modal-header {
     padding: 1.25rem 1.5rem 1rem;
     border-bottom: 1px solid var(--border);
@@ -371,9 +401,7 @@
     align-items: center;
     justify-content: space-between;
   }
-
   .modal-title-area { flex: 1; }
-
   .note-title-input {
     width: 100%;
     background: transparent;
@@ -388,14 +416,12 @@
     margin-bottom: 0.6rem;
   }
   .note-title-input::placeholder { color: var(--ink-faint); font-style: italic; }
-
   .tags-input-area {
     display: flex;
     flex-wrap: wrap;
     gap: 0.3rem;
     align-items: center;
   }
-
   .tag-chip-remove {
     display: inline-flex;
     align-items: center;
@@ -411,7 +437,6 @@
     border-radius: 2px;
   }
   .tag-chip-remove:hover { background: var(--border); }
-
   .tags-select {
     background: transparent;
     border: 1px dashed var(--border);
@@ -422,7 +447,6 @@
     cursor: pointer;
     outline: none;
   }
-
   .modal-close {
     background: transparent;
     border: none;
@@ -443,7 +467,6 @@
     gap: 1rem;
     flex-wrap: wrap;
   }
-
   .crypto-status {
     font-family: 'Special Elite', cursive;
     font-size: 0.78rem;
@@ -455,7 +478,6 @@
   }
   .crypto-status.locked { color: #7fb3e8; }
   .crypto-status.unlocked { color: #a8d8a8; }
-
   .btn-crypto {
     border: none;
     padding: 0.4rem 1rem;
@@ -470,9 +492,7 @@
   .btn-encrypt { background: var(--accent); color: white; }
   .btn-encrypt:hover { background: var(--accent-soft); }
 
-  /* ── EDITOR BODY ── */
   .editor-body { padding: 1.25rem 1.5rem; flex: 1; }
-
   .note-textarea {
     width: 100%;
     min-height: 240px;
@@ -486,11 +506,7 @@
     resize: vertical;
   }
   .note-textarea::placeholder { color: var(--ink-faint); font-style: italic; }
-  .note-textarea:disabled {
-    cursor: not-allowed;
-    color: var(--ink-faint);
-    opacity: 0.6;
-  }
+  .note-textarea:disabled { cursor: not-allowed; color: var(--ink-faint); opacity: 0.6; }
 
   .modal-footer {
     padding: 1rem 1.5rem;
@@ -500,7 +516,6 @@
     gap: 0.75rem;
     align-items: center;
   }
-
   .btn-secondary {
     background: transparent;
     border: 1px solid var(--border);
@@ -514,6 +529,225 @@
   }
   .btn-secondary:hover { border-color: var(--ink-light); color: var(--ink); }
 
+  /* ── FILE UPLOAD MODAL ── */
+  .file-modal {
+    background: var(--paper);
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-top: 4px solid var(--file-color);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .drop-zone {
+    border: 2px dashed var(--border);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    margin: 1.25rem 1.5rem 0;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--file-color);
+    background: rgba(45,107,74,0.04);
+  }
+  .drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .drop-icon { font-size: 2.2rem; margin-bottom: 0.5rem; opacity: 0.5; }
+  .drop-label {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+  }
+  .drop-hint { font-size: 0.78rem; color: var(--ink-faint); margin-top: 0.3rem; font-style: italic; }
+
+  .selected-file-info {
+    margin: 0.75rem 1.5rem 0;
+    background: var(--tag-bg);
+    padding: 0.6rem 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    display: none;
+  }
+  .selected-file-info.visible { display: flex; }
+  .sel-file-name {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.82rem;
+    color: var(--ink);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sel-file-size {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    flex-shrink: 0;
+  }
+  .sel-clear {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+    transition: color 0.15s;
+  }
+  .sel-clear:hover { color: #c0392b; }
+
+  .file-fields { padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 0.85rem; }
+  .field-label {
+    display: block;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 0.3rem;
+  }
+  .field-input {
+    width: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    padding: 0.45rem 0.7rem;
+    font-family: 'IM Fell English', serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+    outline: none;
+  }
+  .field-input:focus { border-color: var(--ink-light); }
+  .field-textarea {
+    width: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    padding: 0.45rem 0.7rem;
+    font-family: 'IM Fell English', serif;
+    font-size: 0.88rem;
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+    min-height: 70px;
+    line-height: 1.5;
+  }
+  .field-textarea:focus { border-color: var(--ink-light); }
+
+  /* ── FILE VIEWER MODAL ── */
+  .file-viewer-modal {
+    background: var(--paper);
+    width: 100%;
+    max-width: 720px;
+    max-height: 92vh;
+    overflow-y: auto;
+    border-top: 4px solid var(--file-color);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+  }
+  .file-viewer-header {
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .file-viewer-icon { font-size: 2rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .file-viewer-info { flex: 1; }
+  .file-viewer-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+  }
+  .file-viewer-meta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  .file-viewer-desc {
+    font-size: 0.88rem;
+    color: var(--ink-light);
+    font-style: italic;
+    line-height: 1.5;
+  }
+  .file-viewer-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
+
+  .file-preview-area {
+    flex: 1;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .preview-image {
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+  .preview-pdf-frame {
+    width: 100%;
+    height: 420px;
+    border: 1px solid var(--border);
+  }
+  .preview-text-block {
+    width: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    padding: 1rem;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--ink);
+    max-height: 360px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .preview-generic {
+    padding: 2.5rem;
+    text-align: center;
+    color: var(--ink-faint);
+  }
+  .preview-generic .big-icon { font-size: 3.5rem; margin-bottom: 0.75rem; }
+  .preview-generic p { font-family: 'Special Elite', cursive; font-size: 0.85rem; letter-spacing: 0.06em; }
+
+  .file-viewer-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .btn-download {
+    background: var(--file-color);
+    color: white;
+    border: none;
+    padding: 0.45rem 1.1rem;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.85rem;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: background 0.2s;
+  }
+  .btn-download:hover { background: var(--file-soft); }
+
   /* ── PASSWORD MODAL ── */
   .pass-modal {
     background: var(--paper);
@@ -523,44 +757,18 @@
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     padding: 2rem;
   }
-
-  .pass-modal h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
-    color: var(--ink);
-    margin-bottom: 0.4rem;
-  }
-  .pass-modal p {
-    font-size: 0.85rem;
-    color: var(--ink-faint);
-    margin-bottom: 1.25rem;
-    line-height: 1.5;
-  }
-
-  .pass-input-wrap { position: relative; margin-bottom: 1rem; }
+  .pass-modal h3 { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--ink); margin-bottom:0.4rem; }
+  .pass-modal p { font-size:0.85rem; color:var(--ink-faint); margin-bottom:1.25rem; line-height:1.5; }
+  .pass-input-wrap { position:relative; margin-bottom:1rem; }
   .pass-input {
-    width: 100%;
-    background: white;
-    border: 1px solid var(--border);
-    padding: 0.6rem 0.75rem;
-    font-family: 'Special Elite', cursive;
-    font-size: 0.9rem;
-    color: var(--ink);
-    outline: none;
-    letter-spacing: 0.08em;
+    width:100%; background:white; border:1px solid var(--border);
+    padding:0.6rem 0.75rem; font-family:'Special Elite',cursive;
+    font-size:0.9rem; color:var(--ink); outline:none; letter-spacing:0.08em;
   }
   .pass-input:focus { border-color: var(--locked-soft); }
-  .pass-error {
-    color: #c0392b;
-    font-family: 'Special Elite', cursive;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    margin-top: 0.4rem;
-    display: none;
-  }
-  .pass-error.visible { display: block; }
-
-  .pass-modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+  .pass-error { color:#c0392b; font-family:'Special Elite',cursive; font-size:0.75rem; letter-spacing:0.05em; margin-top:0.4rem; display:none; }
+  .pass-error.visible { display:block; }
+  .pass-modal-actions { display:flex; gap:0.75rem; justify-content:flex-end; }
 
   /* ── CONFIG MODAL ── */
   .config-modal {
@@ -570,94 +778,44 @@
     border-top: 4px solid var(--ink);
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     padding: 2rem;
-  }
-  .config-modal h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .config-field { margin-bottom: 1rem; }
-  .config-label {
-    display: block;
-    font-family: 'Special Elite', cursive;
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-    margin-bottom: 0.4rem;
-  }
-  .config-input {
-    width: 100%;
-    background: white;
-    border: 1px solid var(--border);
-    padding: 0.5rem 0.7rem;
-    font-family: 'Special Elite', cursive;
-    font-size: 0.85rem;
-    color: var(--ink);
-    outline: none;
-  }
-  .config-input:focus { border-color: var(--ink-light); }
-  .config-hint {
-    font-size: 0.78rem;
-    color: var(--ink-faint);
-    margin-top: 0.3rem;
-    line-height: 1.4;
-  }
-  .config-actions {
-    display: flex;
-    gap: 0.75rem;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
-  }
-
-  .sql-block {
-    background: var(--ink);
-    color: #a8d8a8;
-    padding: 0.75rem 1rem;
-    font-family: 'Special Elite', cursive;
-    font-size: 0.72rem;
-    line-height: 1.7;
-    letter-spacing: 0.03em;
-    margin-top: 1rem;
-    position: relative;
-    max-height: 140px;
+    max-height: 90vh;
     overflow-y: auto;
+  }
+  .config-modal h3 { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:1.25rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border); }
+  .config-field { margin-bottom:1rem; }
+  .config-label { display:block; font-family:'Special Elite',cursive; font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:0.4rem; }
+  .config-input { width:100%; background:white; border:1px solid var(--border); padding:0.5rem 0.7rem; font-family:'Special Elite',cursive; font-size:0.85rem; color:var(--ink); outline:none; }
+  .config-input:focus { border-color:var(--ink-light); }
+  .config-hint { font-size:0.78rem; color:var(--ink-faint); margin-top:0.3rem; line-height:1.4; }
+  .config-actions { display:flex; gap:0.75rem; justify-content:flex-end; margin-top:1.5rem; }
+  .sql-block {
+    background:var(--ink); color:#a8d8a8; padding:0.75rem 1rem;
+    font-family:'Special Elite',cursive; font-size:0.72rem; line-height:1.7;
+    letter-spacing:0.03em; margin-top:1rem; max-height:180px; overflow-y:auto;
   }
 
   /* ── TOAST ── */
   .toast {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    background: var(--ink);
-    color: var(--paper);
-    padding: 0.6rem 1.2rem;
-    font-family: 'Special Elite', cursive;
-    font-size: 0.82rem;
-    letter-spacing: 0.06em;
-    z-index: 999;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.25s, transform 0.25s;
-    pointer-events: none;
-    max-width: 300px;
+    position:fixed; bottom:1.5rem; right:1.5rem; background:var(--ink); color:var(--paper);
+    padding:0.6rem 1.2rem; font-family:'Special Elite',cursive; font-size:0.82rem;
+    letter-spacing:0.06em; z-index:999; opacity:0; transform:translateY(10px);
+    transition:opacity 0.25s,transform 0.25s; pointer-events:none; max-width:300px;
   }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.success { border-left: 3px solid #6fcf6f; }
-  .toast.error { border-left: 3px solid #e07070; }
-  .toast.info { border-left: 3px solid var(--locked-soft); }
+  .toast.show { opacity:1; transform:translateY(0); }
+  .toast.success { border-left:3px solid #6fcf6f; }
+  .toast.error { border-left:3px solid #e07070; }
+  .toast.info { border-left:3px solid var(--locked-soft); }
 
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
 
-  @media (max-width: 640px) {
-    .app-layout { grid-template-columns: 1fr; }
-    aside { position: static; height: auto; }
-    main { padding: 1rem; }
+  @media (max-width:640px) {
+    .app-layout { grid-template-columns:1fr; }
+    aside { position:static; height:auto; }
+    main { padding:1rem; }
+    header { padding:0 1rem; }
+    .header-actions { gap:0.4rem; }
   }
 </style>
 </head>
@@ -665,23 +823,19 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo">
-    <span class="logo-icon">📜</span>
-    Arquivo Pessoal
-  </div>
+  <div class="logo"><span>📜</span> Arquivo Pessoal</div>
   <div class="header-actions">
     <div class="supabase-status">
       <div class="status-dot" id="statusDot"></div>
       <span id="statusText">Não configurado</span>
     </div>
     <button class="btn-primary" onclick="openConfig()">⚙ Supabase</button>
-    <button class="btn-primary" onclick="openNewNote()">+ Nova Nota</button>
+    <button class="btn-primary file-btn" onclick="openFileUpload()">📎 Anexar Arquivo</button>
+    <button class="btn-primary" onclick="openNewNote()">✏ Nova Nota</button>
   </div>
 </header>
 
-<!-- LAYOUT -->
 <div class="app-layout">
-
   <!-- SIDEBAR -->
   <aside>
     <div class="sidebar-section-title">Nova Tag</div>
@@ -702,17 +856,16 @@
   <!-- MAIN -->
   <main>
     <div class="main-toolbar">
-      <input class="search-box" type="text" placeholder="Buscar anotações…" id="searchInput" oninput="renderNotes()">
-      <span class="filter-label" id="filterLabel">Todas as notas</span>
+      <input class="search-box" type="text" placeholder="Buscar notas e arquivos…" id="searchInput" oninput="renderContent()">
+      <span class="filter-label" id="filterLabel">Todas as notas e arquivos</span>
     </div>
-    <div class="notes-grid" id="notesGrid"></div>
+    <div class="content-grid" id="contentGrid"></div>
   </main>
 </div>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- OVERLAY: NOTE EDITOR -->
+<!-- ═══ OVERLAY: NOTE EDITOR ═══ -->
 <div class="overlay" id="editorOverlay">
-  <div class="editor-modal" id="editorModal">
+  <div class="editor-modal">
     <div class="modal-header">
       <div class="modal-title-area">
         <input class="note-title-input" type="text" id="noteTitleInput" placeholder="Título da anotação…" maxlength="120">
@@ -724,7 +877,6 @@
       </div>
       <button class="modal-close" onclick="closeEditor()">✕</button>
     </div>
-
     <div class="crypto-bar" id="cryptoBar">
       <div class="crypto-status locked" id="cryptoStatus">
         🔒 <span id="cryptoStatusText">Nota cifrada</span>
@@ -732,29 +884,98 @@
       <button class="btn-crypto btn-decrypt" id="btnDecrypt" onclick="requestDecrypt()">Decifrar</button>
       <button class="btn-crypto btn-encrypt" id="btnEncrypt" onclick="encryptAndLock()" style="display:none">Cifrar</button>
     </div>
-
     <div class="editor-body">
-      <textarea class="note-textarea" id="noteTextarea"
-        placeholder="Escreva sua anotação aqui…" rows="10"></textarea>
+      <textarea class="note-textarea" id="noteTextarea" placeholder="Escreva sua anotação aqui…" rows="10"></textarea>
     </div>
-
     <div class="modal-footer">
-      <span style="flex:1; font-family:'Special Elite',cursive; font-size:0.72rem; color:var(--ink-faint); letter-spacing:0.05em" id="editorHint"></span>
+      <span style="flex:1;font-family:'Special Elite',cursive;font-size:0.72rem;color:var(--ink-faint);letter-spacing:0.05em" id="editorHint"></span>
       <button class="btn-secondary" onclick="closeEditor()">Cancelar</button>
       <button class="btn-primary" onclick="saveNote()">Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- OVERLAY: PASSWORD PROMPT -->
+<!-- ═══ OVERLAY: FILE UPLOAD ═══ -->
+<div class="overlay" id="fileUploadOverlay">
+  <div class="file-modal">
+    <div class="modal-header">
+      <div class="modal-title-area">
+        <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:var(--ink);margin-bottom:0.5rem" id="fileModalModeTitle">Anexar Arquivo</div>
+        <div class="tags-input-area" id="fileTagsArea">
+          <select class="tags-select" id="fileTagSelect" onchange="addTagToFile()">
+            <option value="">+ tag</option>
+          </select>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeFileUpload()">✕</button>
+    </div>
+
+    <!-- drop zone (only for new files) -->
+    <div id="dropZoneWrapper">
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" onchange="handleFileSelect(event)">
+        <div class="drop-icon">📂</div>
+        <div class="drop-label">Arraste um arquivo ou clique para selecionar</div>
+        <div class="drop-hint">Imagens, PDFs, documentos, planilhas…</div>
+      </div>
+      <div class="selected-file-info" id="selectedFileInfo">
+        <span class="sel-file-name" id="selFileName"></span>
+        <span class="sel-file-size" id="selFileSize"></span>
+        <button class="sel-clear" onclick="clearSelectedFile()" title="Remover">✕</button>
+      </div>
+    </div>
+
+    <div class="file-fields">
+      <div>
+        <label class="field-label">Nome / Título</label>
+        <input class="field-input" type="text" id="fileTitle" placeholder="Nome descritivo do arquivo…" maxlength="140">
+      </div>
+      <div>
+        <label class="field-label">Descrição (opcional)</label>
+        <textarea class="field-textarea" id="fileDesc" placeholder="Breve descrição do conteúdo…" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeFileUpload()">Cancelar</button>
+      <button class="btn-primary file-btn" id="fileSaveBtn" onclick="saveFile()">Salvar Arquivo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY: FILE VIEWER ═══ -->
+<div class="overlay" id="fileViewerOverlay">
+  <div class="file-viewer-modal">
+    <div class="file-viewer-header">
+      <div class="file-viewer-icon" id="fvIcon">📄</div>
+      <div class="file-viewer-info">
+        <div class="file-viewer-title" id="fvTitle"></div>
+        <div class="file-viewer-meta">
+          <span class="file-ext-badge" id="fvExt"></span>
+          <span class="file-size" id="fvSize"></span>
+          <span class="card-date" id="fvDate"></span>
+        </div>
+        <div class="file-viewer-desc" id="fvDesc"></div>
+        <div class="file-viewer-tags" id="fvTags"></div>
+      </div>
+      <button class="modal-close" onclick="closeFileViewer()">✕</button>
+    </div>
+    <div class="file-preview-area" id="fvPreviewArea"></div>
+    <div class="file-viewer-footer">
+      <button class="btn-secondary" onclick="openEditFile()">✏ Editar Info</button>
+      <button class="btn-secondary" onclick="closeFileViewer()">Fechar</button>
+      <button class="btn-download" onclick="downloadCurrentFile()">⬇ Baixar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY: PASSWORD ═══ -->
 <div class="overlay" id="passOverlay">
   <div class="pass-modal">
     <h3 id="passModalTitle">Palavra-passe</h3>
     <p id="passModalDesc">Informe a palavra-passe para esta nota.</p>
     <div class="pass-input-wrap">
-      <input class="pass-input" type="password" id="passInput"
-        placeholder="••••••••"
+      <input class="pass-input" type="password" id="passInput" placeholder="••••••••"
         onkeydown="if(event.key==='Enter')confirmPass()">
       <div class="pass-error" id="passError">Palavra-passe incorreta.</div>
     </div>
@@ -765,12 +986,10 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- OVERLAY: SUPABASE CONFIG -->
+<!-- ═══ OVERLAY: CONFIG ═══ -->
 <div class="overlay" id="configOverlay">
   <div class="config-modal">
     <h3>Configuração do Supabase</h3>
-
     <div class="config-field">
       <label class="config-label">URL do Projeto</label>
       <input class="config-input" type="text" id="cfgUrl" placeholder="https://xxxx.supabase.co">
@@ -778,12 +997,12 @@
     <div class="config-field">
       <label class="config-label">Chave Anon (anon key)</label>
       <input class="config-input" type="text" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6…">
-      <div class="config-hint">A chave pública (anon) encontrada em Settings → API no seu painel Supabase.</div>
+      <div class="config-hint">Chave pública em Settings → API no painel Supabase.</div>
     </div>
-
     <div class="config-field">
       <label class="config-label">Schema SQL necessário</label>
-      <div class="sql-block">-- Execute no SQL Editor do Supabase:<br><br>
+      <div class="sql-block">
+-- Execute no SQL Editor do Supabase:<br><br>
 create table if not exists notes (<br>
 &nbsp; id uuid default gen_random_uuid() primary key,<br>
 &nbsp; title text not null default '',<br>
@@ -796,11 +1015,22 @@ create table if not exists tags (<br>
 &nbsp; id serial primary key,<br>
 &nbsp; name text unique not null<br>
 );<br><br>
--- Habilitar RLS (opcional, para uso com Auth):<br>
--- alter table notes enable row level security;
+create table if not exists files (<br>
+&nbsp; id uuid default gen_random_uuid() primary key,<br>
+&nbsp; title text not null default '',<br>
+&nbsp; description text default '',<br>
+&nbsp; filename text not null,<br>
+&nbsp; mime_type text not null,<br>
+&nbsp; size_bytes bigint default 0,<br>
+&nbsp; data text not null,<br>
+&nbsp; tags text[] default '{}',<br>
+&nbsp; created_at timestamptz default now(),<br>
+&nbsp; updated_at timestamptz default now()<br>
+);<br><br>
+-- Aumentar limite de linha (se necessário):<br>
+-- alter table files set (toast_tuple_target = 128);
       </div>
     </div>
-
     <div class="config-actions">
       <button class="btn-secondary" onclick="closeConfig()">Cancelar</button>
       <button class="btn-primary" onclick="saveConfig()">Conectar</button>
@@ -808,7 +1038,6 @@ create table if not exists tags (<br>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -816,219 +1045,167 @@ create table if not exists tags (<br>
    STATE
 ════════════════════════════════════════════════ */
 let state = {
-  notes: [],          // { id, title, encryptedContent, tags, createdAt, updatedAt }
-  tags: [],           // string[]
+  notes: [],
+  files: [],   // { id, title, description, filename, mimeType, sizeBytes, dataB64, tags, createdAt, updatedAt }
+  tags: [],
   filter: 'all',
-  supabase: { url: '', key: '' },
+  supabase: { url:'', key:'' },
   isConnected: false,
-
-  // editor
-  editingId: null,
+  // note editor
+  editingNoteId: null,
   isNewNote: false,
-  noteTags: [],       // tags on the note being edited
+  noteTags: [],
   isDecrypted: false,
   pendingPassResolve: null,
   pendingPassReject: null,
-  passMode: 'create', // 'create' | 'decrypt'
+  // file modal
+  editingFileId: null,
+  isNewFile: false,
+  fileTags: [],
+  selectedFile: null,       // File object
+  selectedFileB64: null,    // base64 data
+  // viewer
+  viewingFileId: null,
 };
 
 /* ═══════════════════════════════════════════════
-   CRYPTO UTILITIES (Web Crypto API — AES-256-GCM)
-   Password → PBKDF2 → CryptoKey → AES-GCM enc/dec
+   CRYPTO
 ════════════════════════════════════════════════ */
-const enc = new TextEncoder();
-const dec = new TextDecoder();
-
+const enc = new TextEncoder(), dec = new TextDecoder();
 async function deriveKey(password, salt) {
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
-  );
+  const km = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: 200_000, hash: 'SHA-256' },
-    keyMaterial,
-    { name: 'AES-GCM', length: 256 },
-    false, ['encrypt', 'decrypt']
+    { name:'PBKDF2', salt, iterations:200_000, hash:'SHA-256' },
+    km, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
   );
 }
-
-async function encryptText(plainText, password) {
+async function encryptText(plain, password) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv   = crypto.getRandomValues(new Uint8Array(12));
   const key  = await deriveKey(password, salt);
-  const cipherBuffer = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv }, key, enc.encode(plainText)
-  );
-  // Pack: salt(16) + iv(12) + cipher
-  const packed = new Uint8Array(16 + 12 + cipherBuffer.byteLength);
-  packed.set(salt, 0);
-  packed.set(iv, 16);
-  packed.set(new Uint8Array(cipherBuffer), 28);
-  return btoa(String.fromCharCode(...packed));
+  const cipher = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, enc.encode(plain));
+  const out = new Uint8Array(28 + cipher.byteLength);
+  out.set(salt,0); out.set(iv,16); out.set(new Uint8Array(cipher),28);
+  return btoa(String.fromCharCode(...out));
 }
-
 async function decryptText(b64, password) {
-  const bytes  = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-  const salt   = bytes.slice(0, 16);
-  const iv     = bytes.slice(16, 28);
-  const cipher = bytes.slice(28);
-  const key    = await deriveKey(password, salt);
-  const plainBuffer = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv }, key, cipher
-  );
-  return dec.decode(plainBuffer);
+  const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const key = await deriveKey(password, bytes.slice(0,16));
+  const plain = await crypto.subtle.decrypt({ name:'AES-GCM', iv:bytes.slice(16,28) }, key, bytes.slice(28));
+  return dec.decode(plain);
 }
 
 /* ═══════════════════════════════════════════════
-   SUPABASE REST HELPERS
+   SUPABASE
 ════════════════════════════════════════════════ */
-function sbHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'apikey': state.supabase.key,
-    'Authorization': `Bearer ${state.supabase.key}`,
-    'Prefer': 'return=representation'
-  };
+function sbH() {
+  return { 'Content-Type':'application/json', 'apikey':state.supabase.key,
+           'Authorization':'Bearer '+state.supabase.key, 'Prefer':'return=representation' };
 }
-
-async function sbFetch(path, method = 'GET', body = null) {
-  const opts = { method, headers: sbHeaders() };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(`${state.supabase.url}/rest/v1/${path}`, opts);
-  if (!r.ok) throw new Error(`Supabase error: ${r.status} ${await r.text()}`);
-  return method === 'DELETE' ? null : r.json();
+async function sbFetch(path, method='GET', body=null) {
+  const r = await fetch(`${state.supabase.url}/rest/v1/${path}`, {
+    method, headers: sbH(), body: body ? JSON.stringify(body) : undefined
+  });
+  if (!r.ok) throw new Error(`SB ${r.status}: ${await r.text()}`);
+  return method==='DELETE' ? null : r.json();
 }
-
 async function loadFromSupabase() {
-  try {
-    const [notes, tags] = await Promise.all([
-      sbFetch('notes?select=*&order=updated_at.desc'),
-      sbFetch('tags?select=name&order=name.asc')
-    ]);
-    state.notes = notes.map(n => ({
-      id: n.id,
-      title: n.title,
-      encryptedContent: n.encrypted_content,
-      tags: n.tags || [],
-      createdAt: n.created_at,
-      updatedAt: n.updated_at
-    }));
-    state.tags = tags.map(t => t.name);
-    setConnected(true);
-  } catch(e) {
-    setConnected(false);
-    throw e;
-  }
+  const [notes, tags, files] = await Promise.all([
+    sbFetch('notes?select=*&order=updated_at.desc'),
+    sbFetch('tags?select=name&order=name.asc'),
+    sbFetch('files?select=*&order=updated_at.desc')
+  ]);
+  state.notes = notes.map(n => ({
+    id:n.id, title:n.title, encryptedContent:n.encrypted_content,
+    tags:n.tags||[], createdAt:n.created_at, updatedAt:n.updated_at
+  }));
+  state.tags = tags.map(t => t.name);
+  state.files = files.map(f => ({
+    id:f.id, title:f.title, description:f.description||'',
+    filename:f.filename, mimeType:f.mime_type, sizeBytes:f.size_bytes,
+    dataB64:f.data, tags:f.tags||[], createdAt:f.created_at, updatedAt:f.updated_at
+  }));
+  setConnected(true);
 }
-
-async function saveNoteToSupabase(note) {
-  const payload = {
-    title: note.title,
-    encrypted_content: note.encryptedContent,
-    tags: note.tags,
-    updated_at: new Date().toISOString()
-  };
-  if (note.id) {
-    await sbFetch(`notes?id=eq.${note.id}`, 'PATCH', payload);
-  } else {
-    const result = await sbFetch('notes', 'POST', payload);
-    note.id = result[0].id;
-  }
+async function saveNoteToSB(note) {
+  const p = { title:note.title, encrypted_content:note.encryptedContent, tags:note.tags, updated_at:new Date().toISOString() };
+  if (note.id) { await sbFetch(`notes?id=eq.${note.id}`,'PATCH',p); }
+  else { const r = await sbFetch('notes','POST',p); note.id = r[0].id; }
 }
-
-async function deleteNoteFromSupabase(id) {
-  await sbFetch(`notes?id=eq.${id}`, 'DELETE');
+async function deleteNoteFromSB(id) { await sbFetch(`notes?id=eq.${id}`,'DELETE'); }
+async function saveFileToSB(f) {
+  const p = { title:f.title, description:f.description, filename:f.filename, mime_type:f.mimeType,
+              size_bytes:f.sizeBytes, data:f.dataB64, tags:f.tags, updated_at:new Date().toISOString() };
+  if (f.id) { await sbFetch(`files?id=eq.${f.id}`,'PATCH',p); }
+  else { const r = await sbFetch('files','POST',p); f.id = r[0].id; }
 }
+async function deleteFileFromSB(id) { await sbFetch(`files?id=eq.${id}`,'DELETE'); }
+async function saveTagToSB(name) { try { await sbFetch('tags','POST',{name}); } catch(e){} }
 
-async function saveTagToSupabase(name) {
-  try {
-    await sbFetch('tags', 'POST', { name });
-  } catch(e) { /* ignore duplicate */ }
+function setConnected(v) {
+  state.isConnected = v;
+  document.getElementById('statusDot').className = 'status-dot '+(v?'connected':'error');
+  document.getElementById('statusText').textContent = v ? 'Conectado' : 'Desconectado';
 }
 
 /* ═══════════════════════════════════════════════
-   CONNECTION STATUS
-════════════════════════════════════════════════ */
-function setConnected(val) {
-  state.isConnected = val;
-  const dot  = document.getElementById('statusDot');
-  const text = document.getElementById('statusText');
-  dot.className  = 'status-dot ' + (val ? 'connected' : 'error');
-  text.textContent = val ? 'Conectado' : 'Desconectado';
-}
-
-/* ═══════════════════════════════════════════════
-   CONFIG MODAL
+   CONFIG
 ════════════════════════════════════════════════ */
 function openConfig() {
-  document.getElementById('cfgUrl').value  = state.supabase.url;
-  document.getElementById('cfgKey').value  = state.supabase.key;
+  document.getElementById('cfgUrl').value = state.supabase.url;
+  document.getElementById('cfgKey').value = state.supabase.key;
   document.getElementById('configOverlay').classList.add('open');
 }
-function closeConfig() {
-  document.getElementById('configOverlay').classList.remove('open');
-}
+function closeConfig() { document.getElementById('configOverlay').classList.remove('open'); }
 async function saveConfig() {
-  const url = document.getElementById('cfgUrl').value.trim().replace(/\/$/, '');
+  const url = document.getElementById('cfgUrl').value.trim().replace(/\/$/,'');
   const key = document.getElementById('cfgKey').value.trim();
-  if (!url || !key) { showToast('Preencha URL e chave.', 'error'); return; }
+  if (!url||!key) { showToast('Preencha URL e chave.','error'); return; }
   state.supabase = { url, key };
   localStorage.setItem('sb_url', url);
   localStorage.setItem('sb_key', key);
   closeConfig();
-  try {
-    showToast('Conectando…', 'info');
-    await loadFromSupabase();
-    renderAll();
-    showToast('Supabase conectado!', 'success');
-  } catch(e) {
-    showToast('Erro de conexão: ' + e.message, 'error');
-  }
+  showToast('Conectando…','info');
+  try { await loadFromSupabase(); renderAll(); showToast('Supabase conectado!','success'); }
+  catch(e) { showToast('Erro: '+e.message,'error'); }
 }
 
 /* ═══════════════════════════════════════════════
-   TAG MANAGEMENT
+   TAGS
 ════════════════════════════════════════════════ */
 function addTag() {
   const input = document.getElementById('newTagInput');
   const name  = input.value.trim().toLowerCase();
-  if (!name || state.tags.includes(name)) {
-    if (!name) return;
-    showToast('Tag já existe.', 'info');
-    return;
-  }
-  state.tags.push(name);
-  state.tags.sort();
+  if (!name) return;
+  if (state.tags.includes(name)) { showToast('Tag já existe.','info'); return; }
+  state.tags.push(name); state.tags.sort();
   input.value = '';
-  if (state.isConnected) saveTagToSupabase(name).catch(() => {});
+  if (state.isConnected) saveTagToSB(name);
   renderSidebar();
 }
-
 function filterByTag(el, tag) {
   document.querySelectorAll('.tag-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   state.filter = tag;
-  const label = document.getElementById('filterLabel');
-  label.textContent = tag === 'all' ? 'Todas as notas' : `Tag: ${tag}`;
-  renderNotes();
+  document.getElementById('filterLabel').textContent =
+    tag === 'all' ? 'Todas as notas e arquivos' : `Tag: ${tag}`;
+  renderContent();
 }
 
 /* ═══════════════════════════════════════════════
    RENDER
 ════════════════════════════════════════════════ */
-function renderAll() { renderSidebar(); renderNotes(); }
+function renderAll() { renderSidebar(); renderContent(); }
 
 function renderSidebar() {
   const list = document.getElementById('tagList');
-  const countAll = document.getElementById('countAll');
-  countAll.textContent = state.notes.length;
-
-  // Remove old dynamic tags
+  const total = state.notes.length + state.files.length;
+  document.getElementById('countAll').textContent = total;
   list.querySelectorAll('[data-tag]:not([data-tag="all"])').forEach(e => e.remove());
-
   state.tags.forEach(tag => {
-    const count = state.notes.filter(n => n.tags.includes(tag)).length;
+    const count = [...state.notes, ...state.files].filter(i => i.tags.includes(tag)).length;
     const div = document.createElement('div');
-    div.className = 'tag-item' + (state.filter === tag ? ' active' : '');
+    div.className = 'tag-item'+(state.filter===tag?' active':'');
     div.dataset.tag = tag;
     div.onclick = () => filterByTag(div, tag);
     div.innerHTML = `<span>🏷 ${tag}</span><span class="tag-count">${count}</span>`;
@@ -1036,216 +1213,210 @@ function renderSidebar() {
   });
 }
 
-function renderNotes() {
-  const grid   = document.getElementById('notesGrid');
+function renderContent() {
+  const grid   = document.getElementById('contentGrid');
   const search = document.getElementById('searchInput').value.toLowerCase();
+
   let notes = state.notes;
+  let files = state.files;
 
-  if (state.filter !== 'all')
+  if (state.filter !== 'all') {
     notes = notes.filter(n => n.tags.includes(state.filter));
+    files = files.filter(f => f.tags.includes(state.filter));
+  }
+  if (search) {
+    notes = notes.filter(n => n.title.toLowerCase().includes(search) || n.tags.some(t=>t.includes(search)));
+    files = files.filter(f => f.title.toLowerCase().includes(search) || f.filename.toLowerCase().includes(search) || (f.description||'').toLowerCase().includes(search) || f.tags.some(t=>t.includes(search)));
+  }
 
-  if (search)
-    notes = notes.filter(n =>
-      n.title.toLowerCase().includes(search) ||
-      n.tags.some(t => t.includes(search))
-    );
-
-  if (!notes.length) {
-    grid.innerHTML = `<div class="empty-state">
-      <h3>Nenhuma anotação encontrada.</h3>
-      <p>${state.notes.length === 0 ? 'Clique em "+ Nova Nota" para começar.' : 'Tente outro filtro ou busca.'}</p>
-    </div>`;
+  if (!notes.length && !files.length) {
+    grid.innerHTML = `<div class="empty-state"><h3>Nenhum item encontrado.</h3><p>${(state.notes.length+state.files.length)===0?'Use os botões acima para criar notas ou anexar arquivos.':'Tente outro filtro ou busca.'}</p></div>`;
     return;
   }
 
-  grid.innerHTML = notes.map(n => noteCardHTML(n)).join('');
+  let html = '';
+  if (notes.length) {
+    html += `<div class="type-divider">✏ Anotações <span style="opacity:0.5">(${notes.length})</span></div>`;
+    html += notes.map(n => noteCardHTML(n)).join('');
+  }
+  if (files.length) {
+    html += `<div class="type-divider">📎 Arquivos <span style="opacity:0.5">(${files.length})</span></div>`;
+    html += files.map(f => fileCardHTML(f)).join('');
+  }
+  grid.innerHTML = html;
 }
 
 function noteCardHTML(n) {
-  const isEncrypted = !!n.encryptedContent;
-  const preview = isEncrypted
-    ? '⬛⬛⬛⬛⬛ ⬛⬛⬛ ⬛⬛⬛⬛⬛⬛ ⬛⬛'
-    : (n.plainText || '').slice(0, 120);
-  const tagsHTML = n.tags.map(t => `<span class="tag-chip">${t}</span>`).join('');
+  const locked = !!n.encryptedContent;
+  const preview = locked ? '⬛⬛⬛⬛⬛ ⬛⬛⬛ ⬛⬛⬛⬛⬛⬛ ⬛⬛' : (n.plainText||'').slice(0,120);
+  const tags = n.tags.map(t=>`<span class="tag-chip">${t}</span>`).join('');
   const date = n.updatedAt ? new Date(n.updatedAt).toLocaleDateString('pt-BR') : '';
-  const cardClass = isEncrypted ? 'locked-card' : 'unlocked-card';
-
-  return `<div class="note-card ${cardClass}" onclick="openNote('${n.id}')">
-    <div class="note-actions" onclick="event.stopPropagation()">
+  return `<div class="note-card ${locked?'locked-card':'unlocked-card'}" onclick="openNote('${n.id}')">
+    <div class="card-actions" onclick="event.stopPropagation()">
       <button class="icon-btn delete" onclick="deleteNote('${n.id}')" title="Apagar">🗑</button>
     </div>
-    <div class="note-card-header">
-      <div class="note-title">${escHtml(n.title || 'Sem título')}</div>
-      <span class="lock-badge">${isEncrypted ? '🔒' : '🔓'}</span>
+    <div class="card-header">
+      <div class="card-title">${esc(n.title||'Sem título')}</div>
+      <span class="card-badge">${locked?'🔒':'🔓'}</span>
     </div>
-    <div class="note-preview ${isEncrypted ? 'encrypted-preview' : ''}">${escHtml(preview)}</div>
-    <div class="note-footer">
-      <div class="note-tags">${tagsHTML}</div>
-      <span class="note-date">${date}</span>
+    <div class="note-preview ${locked?'encrypted-preview':''}">${esc(preview)}</div>
+    <div class="card-footer">
+      <div class="card-tags">${tags}</div>
+      <span class="card-date">${date}</span>
     </div>
   </div>`;
 }
 
-function escHtml(s) {
-  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function fileCardHTML(f) {
+  const ext  = f.filename.includes('.') ? f.filename.split('.').pop().toUpperCase() : 'ARQ';
+  const icon = fileIcon(f.mimeType);
+  const size = formatSize(f.sizeBytes);
+  const tags = f.tags.map(t=>`<span class="tag-chip">${t}</span>`).join('');
+  const date = f.updatedAt ? new Date(f.updatedAt).toLocaleDateString('pt-BR') : '';
+  return `<div class="file-card" onclick="openFileViewer('${f.id}')">
+    <div class="card-actions" onclick="event.stopPropagation()">
+      <button class="icon-btn download" onclick="downloadFile('${f.id}')" title="Baixar">⬇</button>
+      <button class="icon-btn delete" onclick="deleteFile('${f.id}')" title="Apagar">🗑</button>
+    </div>
+    <div class="card-header">
+      <div class="card-title">${esc(f.title||f.filename)}</div>
+      <span class="card-badge">${icon}</span>
+    </div>
+    <div class="file-meta">
+      <span class="file-ext-badge">${ext}</span>
+      <span class="file-size">${size}</span>
+    </div>
+    ${f.description ? `<div class="file-desc">${esc(f.description)}</div>` : ''}
+    <div class="card-footer">
+      <div class="card-tags">${tags}</div>
+      <span class="card-date">${date}</span>
+    </div>
+  </div>`;
+}
+
+function fileIcon(mime) {
+  if (!mime) return '📄';
+  if (mime.startsWith('image/')) return '🖼';
+  if (mime === 'application/pdf') return '📕';
+  if (mime.includes('spreadsheet') || mime.includes('excel') || mime.includes('csv')) return '📊';
+  if (mime.includes('word') || mime.includes('document')) return '📝';
+  if (mime.includes('zip') || mime.includes('rar') || mime.includes('7z') || mime.includes('tar')) return '📦';
+  if (mime.startsWith('video/')) return '🎬';
+  if (mime.startsWith('audio/')) return '🎵';
+  if (mime.includes('json') || mime.includes('javascript') || mime.includes('html') || mime.includes('css') || mime.startsWith('text/')) return '💻';
+  return '📄';
+}
+
+function formatSize(bytes) {
+  if (!bytes) return '—';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+function esc(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 /* ═══════════════════════════════════════════════
-   EDITOR — OPEN / CLOSE
+   NOTE EDITOR
 ════════════════════════════════════════════════ */
 function openNewNote() {
-  state.editingId   = null;
-  state.isNewNote   = true;
-  state.isDecrypted = false;
-  state.noteTags    = [];
-
+  state.editingNoteId = null; state.isNewNote = true; state.isDecrypted = false; state.noteTags = [];
   document.getElementById('noteTitleInput').value = '';
   document.getElementById('noteTextarea').value   = '';
   document.getElementById('noteTextarea').disabled = false;
-
-  // New note: decrypt bar hidden, textarea enabled
   updateCryptoBar('new');
-  populateTagSelect();
-  renderNoteTags();
+  populateNoteTagSelect(); renderNoteTags();
   document.getElementById('editorHint').textContent = 'Nova nota — será cifrada ao salvar.';
   document.getElementById('editorOverlay').classList.add('open');
 }
-
 function openNote(id) {
   const note = state.notes.find(n => n.id === id);
   if (!note) return;
-
-  state.editingId   = id;
-  state.isNewNote   = false;
-  state.isDecrypted = false;
-  state.noteTags    = [...note.tags];
-
+  state.editingNoteId = id; state.isNewNote = false; state.isDecrypted = false; state.noteTags = [...note.tags];
   document.getElementById('noteTitleInput').value  = note.title;
   document.getElementById('noteTextarea').value    = '';
   document.getElementById('noteTextarea').disabled = true;
-
   updateCryptoBar('locked');
-  populateTagSelect();
-  renderNoteTags();
+  populateNoteTagSelect(); renderNoteTags();
   document.getElementById('editorHint').textContent = `ID: ${id.slice(0,8)}…`;
   document.getElementById('editorOverlay').classList.add('open');
 }
-
 function closeEditor() {
   state.isDecrypted = false;
   document.getElementById('editorOverlay').classList.remove('open');
-  document.getElementById('noteTextarea').value   = '';
+  document.getElementById('noteTextarea').value = '';
   document.getElementById('noteTextarea').disabled = true;
 }
-
-/* ─── Crypto bar states ─── */
 function updateCryptoBar(mode) {
-  const bar    = document.getElementById('cryptoBar');
-  const status = document.getElementById('cryptoStatus');
-  const stText = document.getElementById('cryptoStatusText');
-  const btnD   = document.getElementById('btnDecrypt');
-  const btnE   = document.getElementById('btnEncrypt');
-  const ta     = document.getElementById('noteTextarea');
-
-  if (mode === 'new') {
-    bar.style.display = 'none';
-    ta.disabled = false;
-  } else if (mode === 'locked') {
-    bar.style.display = 'flex';
-    status.className = 'crypto-status locked';
-    stText.textContent = 'Nota cifrada — clique em Decifrar para editar.';
-    btnD.style.display = '';
-    btnE.style.display = 'none';
-    ta.disabled = true;
-  } else if (mode === 'unlocked') {
-    bar.style.display = 'flex';
-    status.className = 'crypto-status unlocked';
-    stText.textContent = 'Nota decifrada — editando.';
-    btnD.style.display = 'none';
-    btnE.style.display = '';
-    ta.disabled = false;
+  const bar=document.getElementById('cryptoBar'), st=document.getElementById('cryptoStatus'),
+    txt=document.getElementById('cryptoStatusText'), bd=document.getElementById('btnDecrypt'),
+    be=document.getElementById('btnEncrypt'), ta=document.getElementById('noteTextarea');
+  if (mode==='new') { bar.style.display='none'; ta.disabled=false; }
+  else if (mode==='locked') {
+    bar.style.display='flex'; st.className='crypto-status locked';
+    txt.textContent='Nota cifrada — clique em Decifrar para editar.';
+    bd.style.display=''; be.style.display='none'; ta.disabled=true;
+  } else if (mode==='unlocked') {
+    bar.style.display='flex'; st.className='crypto-status unlocked';
+    txt.textContent='Nota decifrada — editando.';
+    bd.style.display='none'; be.style.display=''; ta.disabled=false;
   }
 }
 
 /* ═══════════════════════════════════════════════
-   PASSWORD FLOW
+   PASSWORD
 ════════════════════════════════════════════════ */
 function askPassword(mode) {
-  // mode: 'create' | 'decrypt'
-  state.passMode = mode;
   document.getElementById('passError').classList.remove('visible');
   document.getElementById('passInput').value = '';
-
-  if (mode === 'create') {
-    document.getElementById('passModalTitle').textContent = 'Criar Palavra-passe';
-    document.getElementById('passModalDesc').textContent  =
-      'Defina uma palavra-passe para esta nota. Ela será usada para cifrar e decifrar o conteúdo. Não a perca!';
-  } else {
-    document.getElementById('passModalTitle').textContent = 'Decifrar Nota';
-    document.getElementById('passModalDesc').textContent  =
-      'Informe a palavra-passe desta nota para decifrar o conteúdo.';
-  }
-
+  document.getElementById('passModalTitle').textContent = mode==='create' ? 'Criar Palavra-passe' : 'Decifrar Nota';
+  document.getElementById('passModalDesc').textContent  = mode==='create'
+    ? 'Defina uma palavra-passe para cifrar esta nota. Não a perca!'
+    : 'Informe a palavra-passe desta nota.';
   document.getElementById('passOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('passInput').focus(), 80);
-
-  return new Promise((resolve, reject) => {
-    state.pendingPassResolve = resolve;
-    state.pendingPassReject  = reject;
-  });
+  setTimeout(()=>document.getElementById('passInput').focus(),80);
+  return new Promise((res,rej) => { state.pendingPassResolve=res; state.pendingPassReject=rej; });
 }
-
 function confirmPass() {
-  const val = document.getElementById('passInput').value;
-  if (!val) { document.getElementById('passError').textContent = 'Informe uma palavra-passe.'; document.getElementById('passError').classList.add('visible'); return; }
+  const v = document.getElementById('passInput').value;
+  if (!v) { document.getElementById('passError').textContent='Informe uma palavra-passe.'; document.getElementById('passError').classList.add('visible'); return; }
   document.getElementById('passOverlay').classList.remove('open');
-  state.pendingPassResolve && state.pendingPassResolve(val);
+  state.pendingPassResolve && state.pendingPassResolve(v);
 }
-
 function cancelPass() {
   document.getElementById('passOverlay').classList.remove('open');
   state.pendingPassReject && state.pendingPassReject(new Error('cancelled'));
 }
 
-/* ═══════════════════════════════════════════════
-   DECRYPT FLOW
-════════════════════════════════════════════════ */
 async function requestDecrypt() {
-  const note = state.notes.find(n => n.id === state.editingId);
+  const note = state.notes.find(n=>n.id===state.editingNoteId);
   if (!note) return;
   try {
     const pass = await askPassword('decrypt');
     const plain = await decryptText(note.encryptedContent, pass);
-    note._pass = pass; // remember pass for re-encrypt
+    note._pass = pass;
     document.getElementById('noteTextarea').value = plain;
     state.isDecrypted = true;
     updateCryptoBar('unlocked');
   } catch(e) {
-    if (e.message === 'cancelled') return;
-    // Wrong password = decryption error
-    document.getElementById('passError').textContent = 'Palavra-passe incorreta.';
+    if (e.message==='cancelled') return;
+    document.getElementById('passError').textContent='Palavra-passe incorreta.';
     document.getElementById('passError').classList.add('visible');
     document.getElementById('passOverlay').classList.add('open');
-    setTimeout(() => document.getElementById('passInput').focus(), 80);
+    setTimeout(()=>document.getElementById('passInput').focus(),80);
   }
 }
-
-/* ═══════════════════════════════════════════════
-   ENCRYPT & LOCK (button inside editor)
-════════════════════════════════════════════════ */
 async function encryptAndLock() {
-  const note = state.notes.find(n => n.id === state.editingId);
-  if (!note || !note._pass) return;
-  const text = document.getElementById('noteTextarea').value;
-  note.encryptedContent = await encryptText(text, note._pass);
-  delete note._pass;
-  state.isDecrypted = false;
+  const note = state.notes.find(n=>n.id===state.editingNoteId);
+  if (!note||!note._pass) return;
+  note.encryptedContent = await encryptText(document.getElementById('noteTextarea').value, note._pass);
+  delete note._pass; state.isDecrypted = false;
   document.getElementById('noteTextarea').value = '';
   updateCryptoBar('locked');
-  showToast('Nota cifrada.', 'success');
-  // Auto-save
-  await persistNote(note);
-  renderAll();
+  showToast('Nota cifrada.','success');
+  await persistNote(note); renderAll();
 }
 
 /* ═══════════════════════════════════════════════
@@ -1254,125 +1425,265 @@ async function encryptAndLock() {
 async function saveNote() {
   const title = document.getElementById('noteTitleInput').value.trim();
   const text  = document.getElementById('noteTextarea').value;
-
-  if (!title) { showToast('Informe um título.', 'error'); return; }
-
+  if (!title) { showToast('Informe um título.','error'); return; }
   let note;
-
   if (state.isNewNote) {
-    // Ask for password
-    let pass;
-    try { pass = await askPassword('create'); }
-    catch(e) { return; }
-
-    const encrypted = await encryptText(text || '', pass);
-    note = {
-      id: null,
-      title,
-      encryptedContent: encrypted,
-      tags: [...state.noteTags],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    let pass; try { pass = await askPassword('create'); } catch(e) { return; }
+    const enc_ = await encryptText(text||'', pass);
+    note = { id:null, title, encryptedContent:enc_, tags:[...state.noteTags],
+             createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() };
     state.notes.unshift(note);
-
   } else {
-    note = state.notes.find(n => n.id === state.editingId);
-    note.title = title;
-    note.tags  = [...state.noteTags];
-
+    note = state.notes.find(n=>n.id===state.editingNoteId);
+    note.title = title; note.tags = [...state.noteTags];
     if (state.isDecrypted) {
-      // Re-encrypt with same pass
-      if (!note._pass) {
-        try { note._pass = await askPassword('create'); }
-        catch(e) { return; }
-      }
+      if (!note._pass) { try { note._pass = await askPassword('create'); } catch(e) { return; } }
       note.encryptedContent = await encryptText(text, note._pass);
-      delete note._pass;
-      state.isDecrypted = false;
+      delete note._pass; state.isDecrypted = false;
     }
     note.updatedAt = new Date().toISOString();
   }
-
   await persistNote(note);
-  closeEditor();
-  renderAll();
-  showToast('Nota salva!', 'success');
+  closeEditor(); renderAll();
+  showToast('Nota salva!','success');
 }
-
 async function persistNote(note) {
-  if (state.isConnected) {
-    try { await saveNoteToSupabase(note); }
-    catch(e) { showToast('Erro ao salvar no Supabase: ' + e.message, 'error'); }
-  } else {
-    // Fallback: localStorage
-    localStorage.setItem('notes_local', JSON.stringify(state.notes));
-  }
+  if (state.isConnected) { try { await saveNoteToSB(note); } catch(e) { showToast('Erro SB: '+e.message,'error'); } }
+  else localStorage.setItem('notes_local', JSON.stringify(state.notes));
 }
-
-/* ═══════════════════════════════════════════════
-   DELETE NOTE
-════════════════════════════════════════════════ */
 async function deleteNote(id) {
-  if (!confirm('Apagar esta nota permanentemente?')) return;
-  state.notes = state.notes.filter(n => n.id !== id);
-  if (state.isConnected) {
-    try { await deleteNoteFromSupabase(id); }
-    catch(e) { showToast('Erro ao apagar: ' + e.message, 'error'); }
-  } else {
-    localStorage.setItem('notes_local', JSON.stringify(state.notes));
-  }
-  renderAll();
-  showToast('Nota apagada.', 'info');
+  if (!confirm('Apagar esta nota?')) return;
+  state.notes = state.notes.filter(n=>n.id!==id);
+  if (state.isConnected) { try { await deleteNoteFromSB(id); } catch(e) { showToast('Erro SB: '+e.message,'error'); } }
+  else localStorage.setItem('notes_local', JSON.stringify(state.notes));
+  renderAll(); showToast('Nota apagada.','info');
 }
 
 /* ═══════════════════════════════════════════════
-   NOTE TAGS (editor)
+   NOTE TAGS UI
 ════════════════════════════════════════════════ */
-function populateTagSelect() {
+function populateNoteTagSelect() {
   const sel = document.getElementById('noteTagSelect');
   sel.innerHTML = '<option value="">+ tag</option>';
-  state.tags.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t; opt.textContent = t;
-    sel.appendChild(opt);
-  });
+  state.tags.forEach(t => { const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o); });
 }
-
 function addTagToNote() {
   const sel = document.getElementById('noteTagSelect');
-  const val = sel.value;
-  if (!val || state.noteTags.includes(val)) { sel.value = ''; return; }
-  state.noteTags.push(val);
-  sel.value = '';
-  renderNoteTags();
+  const val = sel.value; if (!val||state.noteTags.includes(val)) { sel.value=''; return; }
+  state.noteTags.push(val); sel.value=''; renderNoteTags();
 }
-
-function removeTagFromNote(tag) {
-  state.noteTags = state.noteTags.filter(t => t !== tag);
-  renderNoteTags();
-}
-
+function removeTagFromNote(tag) { state.noteTags = state.noteTags.filter(t=>t!==tag); renderNoteTags(); }
 function renderNoteTags() {
   const area = document.getElementById('noteTagsArea');
   area.innerHTML = '';
   state.noteTags.forEach(t => {
-    const btn = document.createElement('button');
-    btn.className = 'tag-chip-remove';
-    btn.innerHTML = `${t} <span style="opacity:0.5">✕</span>`;
-    btn.onclick = () => removeTagFromNote(t);
-    area.appendChild(btn);
+    const b = document.createElement('button'); b.className='tag-chip-remove';
+    b.innerHTML=`${t} <span style="opacity:0.5">✕</span>`; b.onclick=()=>removeTagFromNote(t);
+    area.appendChild(b);
   });
-  const sel = document.createElement('select');
-  sel.className = 'tags-select';
-  sel.id = 'noteTagSelect';
-  sel.onchange = addTagToNote;
+  const sel = document.createElement('select'); sel.className='tags-select'; sel.id='noteTagSelect'; sel.onchange=addTagToNote;
+  sel.innerHTML='<option value="">+ tag</option>';
+  state.tags.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o); });
+  area.appendChild(sel);
+}
+
+/* ═══════════════════════════════════════════════
+   FILE UPLOAD MODAL
+════════════════════════════════════════════════ */
+function openFileUpload(existingId) {
+  state.editingFileId = existingId || null;
+  state.isNewFile = !existingId;
+  state.fileTags = [];
+  state.selectedFile = null;
+  state.selectedFileB64 = null;
+
+  document.getElementById('fileModalModeTitle').textContent = existingId ? 'Editar Informações do Arquivo' : 'Anexar Arquivo';
+  document.getElementById('dropZoneWrapper').style.display = existingId ? 'none' : '';
+  document.getElementById('fileSaveBtn').textContent = existingId ? 'Salvar Alterações' : 'Salvar Arquivo';
+  document.getElementById('selectedFileInfo').classList.remove('visible');
+  document.getElementById('fileInput').value = '';
+
+  if (existingId) {
+    const f = state.files.find(x=>x.id===existingId);
+    document.getElementById('fileTitle').value = f.title;
+    document.getElementById('fileDesc').value  = f.description;
+    state.fileTags = [...f.tags];
+  } else {
+    document.getElementById('fileTitle').value = '';
+    document.getElementById('fileDesc').value  = '';
+  }
+
+  populateFileTagSelect(); renderFileTags();
+  document.getElementById('fileUploadOverlay').classList.add('open');
+}
+function closeFileUpload() {
+  document.getElementById('fileUploadOverlay').classList.remove('open');
+  state.selectedFile = null; state.selectedFileB64 = null;
+}
+
+function handleFileSelect(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  if (file.size > 8 * 1024 * 1024) { showToast('Arquivo muito grande (máx. 8 MB).','error'); return; }
+  state.selectedFile = file;
+  if (!document.getElementById('fileTitle').value)
+    document.getElementById('fileTitle').value = file.name.replace(/\.[^.]+$/,'');
+  document.getElementById('selFileName').textContent = file.name;
+  document.getElementById('selFileSize').textContent = formatSize(file.size);
+  document.getElementById('selectedFileInfo').classList.add('visible');
+  // Read as base64
+  const reader = new FileReader();
+  reader.onload = e => { state.selectedFileB64 = e.target.result.split(',')[1]; };
+  reader.readAsDataURL(file);
+}
+function clearSelectedFile() {
+  state.selectedFile = null; state.selectedFileB64 = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('selectedFileInfo').classList.remove('visible');
+}
+
+// Drag & drop
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) { const dt = new DataTransfer(); dt.items.add(file); document.getElementById('fileInput').files = dt.files; handleFileSelect({target:{files:[file]}}); }
+  });
+});
+
+async function saveFile() {
+  const title = document.getElementById('fileTitle').value.trim();
+  const desc  = document.getElementById('fileDesc').value.trim();
+  if (!title) { showToast('Informe um título.','error'); return; }
+
+  if (state.isNewFile) {
+    if (!state.selectedFile || !state.selectedFileB64) { showToast('Selecione um arquivo.','error'); return; }
+    const file = {
+      id: null, title, description: desc,
+      filename: state.selectedFile.name,
+      mimeType: state.selectedFile.type || 'application/octet-stream',
+      sizeBytes: state.selectedFile.size,
+      dataB64: state.selectedFileB64,
+      tags: [...state.fileTags],
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    };
+    state.files.unshift(file);
+    await persistFile(file);
+  } else {
+    const file = state.files.find(f=>f.id===state.editingFileId);
+    file.title = title; file.description = desc; file.tags = [...state.fileTags];
+    file.updatedAt = new Date().toISOString();
+    await persistFile(file);
+  }
+  closeFileUpload();
+  if (state.viewingFileId) { closeFileViewer(); }
+  renderAll();
+  showToast('Arquivo salvo!','success');
+}
+async function persistFile(f) {
+  if (state.isConnected) { try { await saveFileToSB(f); } catch(e) { showToast('Erro SB: '+e.message,'error'); } }
+  else localStorage.setItem('files_local', JSON.stringify(state.files));
+}
+async function deleteFile(id) {
+  if (!confirm('Apagar este arquivo permanentemente?')) return;
+  state.files = state.files.filter(f=>f.id!==id);
+  if (state.isConnected) { try { await deleteFileFromSB(id); } catch(e) { showToast('Erro SB: '+e.message,'error'); } }
+  else localStorage.setItem('files_local', JSON.stringify(state.files));
+  renderAll(); showToast('Arquivo apagado.','info');
+}
+function downloadFile(id) {
+  const f = state.files.find(x=>x.id===id);
+  if (!f) return;
+  const link = document.createElement('a');
+  link.href = `data:${f.mimeType};base64,${f.dataB64}`;
+  link.download = f.filename;
+  link.click();
+}
+
+/* ═══════════════════════════════════════════════
+   FILE VIEWER MODAL
+════════════════════════════════════════════════ */
+function openFileViewer(id) {
+  const f = state.files.find(x=>x.id===id);
+  if (!f) return;
+  state.viewingFileId = id;
+  document.getElementById('fvIcon').textContent  = fileIcon(f.mimeType);
+  document.getElementById('fvTitle').textContent = f.title||f.filename;
+  document.getElementById('fvExt').textContent   = f.filename.includes('.') ? f.filename.split('.').pop().toUpperCase() : 'ARQ';
+  document.getElementById('fvSize').textContent  = formatSize(f.sizeBytes);
+  document.getElementById('fvDate').textContent  = f.updatedAt ? new Date(f.updatedAt).toLocaleDateString('pt-BR') : '';
+  document.getElementById('fvDesc').textContent  = f.description||'';
+  document.getElementById('fvDesc').style.display = f.description ? '' : 'none';
+  document.getElementById('fvTags').innerHTML = f.tags.map(t=>`<span class="tag-chip">${t}</span>`).join('');
+
+  // Preview
+  const area = document.getElementById('fvPreviewArea');
+  area.innerHTML = '';
+  const dataUrl = `data:${f.mimeType};base64,${f.dataB64}`;
+  if (f.mimeType.startsWith('image/')) {
+    const img = document.createElement('img');
+    img.className='preview-image'; img.src=dataUrl; img.alt=f.filename;
+    area.appendChild(img);
+  } else if (f.mimeType==='application/pdf') {
+    const iframe = document.createElement('iframe');
+    iframe.className='preview-pdf-frame'; iframe.src=dataUrl;
+    area.appendChild(iframe);
+  } else if (f.mimeType.startsWith('text/') || f.mimeType.includes('json') || f.mimeType.includes('xml')) {
+    try {
+      const bytes = Uint8Array.from(atob(f.dataB64), c=>c.charCodeAt(0));
+      const text  = new TextDecoder().decode(bytes);
+      const div = document.createElement('div');
+      div.className='preview-text-block'; div.textContent=text;
+      area.appendChild(div);
+    } catch(e) { area.innerHTML = genericPreview(f); }
+  } else {
+    area.innerHTML = genericPreview(f);
+  }
+  document.getElementById('fileViewerOverlay').classList.add('open');
+}
+function genericPreview(f) {
+  return `<div class="preview-generic"><div class="big-icon">${fileIcon(f.mimeType)}</div><p>${esc(f.filename)}</p><p style="margin-top:0.4rem;font-size:0.75rem">${formatSize(f.sizeBytes)} · ${f.mimeType}</p></div>`;
+}
+function closeFileViewer() {
+  document.getElementById('fileViewerOverlay').classList.remove('open');
+  state.viewingFileId = null;
+}
+function downloadCurrentFile() {
+  if (state.viewingFileId) downloadFile(state.viewingFileId);
+}
+function openEditFile() {
+  closeFileViewer();
+  openFileUpload(state.viewingFileId);
+}
+
+/* ═══════════════════════════════════════════════
+   FILE TAGS UI
+════════════════════════════════════════════════ */
+function populateFileTagSelect() {
+  const sel = document.getElementById('fileTagSelect');
   sel.innerHTML = '<option value="">+ tag</option>';
-  state.tags.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t; opt.textContent = t;
-    sel.appendChild(opt);
+  state.tags.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o); });
+}
+function addTagToFile() {
+  const sel = document.getElementById('fileTagSelect');
+  const val = sel.value; if (!val||state.fileTags.includes(val)) { sel.value=''; return; }
+  state.fileTags.push(val); sel.value=''; renderFileTags();
+}
+function removeTagFromFile(tag) { state.fileTags = state.fileTags.filter(t=>t!==tag); renderFileTags(); }
+function renderFileTags() {
+  const area = document.getElementById('fileTagsArea');
+  area.innerHTML = '';
+  state.fileTags.forEach(t => {
+    const b = document.createElement('button'); b.className='tag-chip-remove';
+    b.innerHTML=`${t} <span style="opacity:0.5">✕</span>`; b.onclick=()=>removeTagFromFile(t);
+    area.appendChild(b);
   });
+  const sel = document.createElement('select'); sel.className='tags-select'; sel.id='fileTagSelect'; sel.onchange=addTagToFile;
+  sel.innerHTML='<option value="">+ tag</option>';
+  state.tags.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; sel.appendChild(o); });
   area.appendChild(sel);
 }
 
@@ -1380,54 +1691,40 @@ function renderNoteTags() {
    TOAST
 ════════════════════════════════════════════════ */
 let toastTimer;
-function showToast(msg, type = 'info') {
+function showToast(msg, type='info') {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type}`;
-  void t.offsetWidth;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  t.textContent=msg; t.className=`toast ${type}`; void t.offsetWidth;
+  t.classList.add('show'); clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2800);
 }
 
 /* ═══════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════════ */
 async function init() {
-  // Load Supabase creds from localStorage
-  const url = localStorage.getItem('sb_url') || '';
-  const key = localStorage.getItem('sb_key') || '';
+  const url = localStorage.getItem('sb_url')||'';
+  const key = localStorage.getItem('sb_key')||'';
   state.supabase = { url, key };
-
-  // Load local fallback notes
-  try {
-    const local = localStorage.getItem('notes_local');
-    if (local) state.notes = JSON.parse(local);
-  } catch(e) {}
-
+  try { const n=localStorage.getItem('notes_local'); if(n) state.notes=JSON.parse(n); } catch(e){}
+  try { const f=localStorage.getItem('files_local'); if(f) state.files=JSON.parse(f); } catch(e){}
   if (url && key) {
-    try {
-      await loadFromSupabase();
-      showToast('Supabase conectado!', 'success');
-    } catch(e) {
-      showToast('Supabase offline — modo local.', 'info');
-    }
+    try { await loadFromSupabase(); showToast('Supabase conectado!','success'); }
+    catch(e) { showToast('Supabase offline — modo local.','info'); }
   }
-
-  // Default tags
-  if (!state.tags.length) state.tags = ['pessoal', 'trabalho', 'ideias', 'importante'];
+  if (!state.tags.length) state.tags=['pessoal','trabalho','ideias','importante'];
   renderAll();
 }
 
-// Close overlays on backdrop click
-document.getElementById('editorOverlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeEditor();
-});
-document.getElementById('configOverlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeConfig();
-});
-document.getElementById('passOverlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) cancelPass();
+// Backdrop close
+['editorOverlay','fileUploadOverlay','fileViewerOverlay','configOverlay','passOverlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target !== e.currentTarget) return;
+    if (id==='editorOverlay') closeEditor();
+    else if (id==='fileUploadOverlay') closeFileUpload();
+    else if (id==='fileViewerOverlay') closeFileViewer();
+    else if (id==='configOverlay') closeConfig();
+    else if (id==='passOverlay') cancelPass();
+  });
 });
 
 init();
