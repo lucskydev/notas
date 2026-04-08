@@ -10,147 +10,146 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     body { font-family: 'Inter', system-ui, sans-serif; }
     .note-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .note-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
-    .modal { animation: fadeIn 0.2s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .bottom-nav { box-shadow: 0 -1px 3px rgba(0,0,0,0.1); }
+    .note-card:hover { transform: translateY(-3px); }
+    .modal { animation: modalPop 0.3s ease-out; }
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body class="bg-zinc-950 text-zinc-200 min-h-screen">
 
   <!-- Header -->
   <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 bg-violet-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl">📓</div>
+        <div class="w-10 h-10 bg-violet-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg">📓</div>
         <h1 class="text-2xl font-semibold tracking-tight">Notas</h1>
       </div>
-      
       <div class="flex items-center gap-4">
-        <button onclick="toggleTheme()" class="p-2 hover:bg-zinc-800 rounded-xl text-xl transition-colors" id="theme-btn">🌙</button>
-        <button onclick="logout()" class="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium transition-colors">
+        <button onclick="toggleTheme()" id="theme-btn" class="p-3 hover:bg-zinc-800 rounded-2xl text-xl transition-colors">🌙</button>
+        <button onclick="logout()" class="hidden md:flex items-center gap-2 px-5 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-3xl text-sm font-medium transition-colors">
           Sair <i class="fas fa-sign-out-alt"></i>
         </button>
       </div>
     </div>
   </header>
 
-  <div class="flex max-w-7xl mx-auto">
-    
-    <!-- Sidebar (desktop) -->
-    <aside class="hidden md:flex w-72 bg-zinc-900 border-r border-zinc-800 h-[calc(100vh-60px)] flex-col">
-      <div class="p-4">
+  <div class="flex max-w-7xl mx-auto h-[calc(100vh-73px)]">
+
+    <!-- Sidebar Desktop -->
+    <aside class="hidden md:flex w-72 bg-zinc-900 border-r border-zinc-800 flex-col">
+      <div class="p-6">
         <button onclick="novaNota()" 
-                class="w-full bg-violet-600 hover:bg-violet-700 text-white font-medium py-3 px-6 rounded-3xl flex items-center justify-center gap-2 transition-all active:scale-95">
+                class="w-full bg-violet-600 hover:bg-violet-700 py-4 rounded-3xl font-semibold flex items-center justify-center gap-3 transition-all active:scale-95">
           <i class="fas fa-plus"></i> Nova Nota
         </button>
       </div>
 
-      <div class="px-4">
+      <div class="px-6">
         <div class="relative">
-          <input type="text" id="search" placeholder="Buscar notas..." 
-                 class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl py-3 px-5 pl-11 text-sm focus:outline-none focus:border-violet-500">
-          <i class="fas fa-search absolute left-4 top-3.5 text-zinc-500"></i>
+          <input id="search-input" type="text" placeholder="Buscar notas..." 
+                 class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl py-3 px-5 pl-12 focus:outline-none focus:border-violet-500">
+          <i class="fas fa-search absolute left-5 top-3.5 text-zinc-500"></i>
         </div>
       </div>
 
-      <div class="mt-8 px-4">
-        <div class="flex items-center justify-between text-xs uppercase tracking-widest text-zinc-500 mb-3">
+      <div class="mt-10 px-6">
+        <div class="flex items-center justify-between text-xs uppercase tracking-widest text-zinc-500 mb-4">
           <span>Tags</span>
-          <button onclick="novaTag()" class="hover:text-white transition-colors"><i class="fas fa-plus"></i></button>
+          <button onclick="novaTag()" class="hover:text-violet-400"><i class="fas fa-plus"></i></button>
         </div>
-        <div id="tag-list" class="space-y-1"></div>
+        <div id="tag-list" class="space-y-1 text-sm"></div>
       </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-4 md:p-8 overflow-auto" style="height: calc(100vh - 60px);">
-      <div class="flex justify-between items-center mb-8">
-        <h2 class="text-3xl font-semibold" id="view-title">Todas as Notas</h2>
-        <div class="flex gap-2 md:hidden">
-          <button onclick="toggleSidebar()" class="p-3 bg-zinc-900 rounded-2xl"><i class="fas fa-bars"></i></button>
-        </div>
+    <main class="flex-1 p-4 md:p-8 overflow-auto bg-zinc-950">
+      <div class="flex items-center justify-between mb-8">
+        <h2 id="page-title" class="text-3xl font-semibold">Todas as Notas</h2>
+        <button onclick="toggleMobileMenu()" class="md:hidden p-3 bg-zinc-900 rounded-2xl">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
       </div>
 
-      <!-- Lista de Notas -->
-      <div id="notes-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <div id="notes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Notas serão inseridas aqui via JS -->
+      </div>
 
-      <!-- Área vazia -->
-      <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center">
-        <div class="text-7xl mb-6 opacity-50">📓</div>
-        <p class="text-zinc-400 text-lg">Nenhuma nota ainda</p>
-        <button onclick="novaNota()" 
-                class="mt-6 px-8 py-3 bg-violet-600 hover:bg-violet-700 rounded-3xl font-medium">
-          Criar primeira nota
+      <div id="empty-state" class="hidden flex-col items-center justify-center py-24 text-center">
+        <div class="text-8xl mb-6 opacity-40">📓</div>
+        <p class="text-zinc-400 text-xl">Nenhuma nota encontrada</p>
+        <button onclick="novaNota()" class="mt-8 px-8 py-4 bg-violet-600 hover:bg-violet-700 rounded-3xl font-medium flex items-center gap-2">
+          <i class="fas fa-plus"></i> Criar primeira nota
         </button>
       </div>
     </main>
   </div>
 
-  <!-- Bottom Navigation (Mobile) -->
+  <!-- Bottom Navigation - Mobile -->
   <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 z-50">
-    <div class="flex justify-around py-2">
-      <button onclick="showAllNotes()" class="flex flex-col items-center p-2 text-violet-400">
-        <i class="fas fa-home text-xl"></i>
+    <div class="flex items-center justify-around py-3">
+      <button onclick="showAllNotes()" class="flex flex-col items-center text-violet-400">
+        <i class="fas fa-home text-2xl"></i>
         <span class="text-xs mt-1">Todas</span>
       </button>
-      <button onclick="novaNota()" class="flex flex-col items-center -mt-6 bg-violet-600 text-white w-14 h-14 rounded-3xl shadow-xl flex items-center justify-center">
-        <i class="fas fa-plus text-2xl"></i>
+      <button onclick="novaNota()" class="flex flex-col items-center -mt-8 bg-violet-600 w-16 h-16 rounded-3xl shadow-2xl items-center justify-center text-3xl">
+        +
       </button>
-      <button onclick="openSettings()" class="flex flex-col items-center p-2 text-zinc-400">
-        <i class="fas fa-cog text-xl"></i>
+      <button onclick="openSettings()" class="flex flex-col items-center text-zinc-400">
+        <i class="fas fa-cog text-2xl"></i>
         <span class="text-xs mt-1">Config</span>
       </button>
     </div>
   </nav>
 
-  <!-- Modais (mantidos com melhor design) -->
+  <!-- ====================== MODAIS ====================== -->
+
   <!-- Login Modal -->
-  <div id="login-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] modal hidden">
-    <div class="bg-zinc-900 rounded-3xl w-full max-w-md mx-4 p-8">
+  <div id="login-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-[200] modal">
+    <div class="bg-zinc-900 rounded-3xl w-full max-w-md mx-4 p-8 shadow-2xl">
       <div class="flex justify-center mb-8">
-        <div class="w-16 h-16 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-2xl flex items-center justify-center text-4xl">📓</div>
+        <div class="w-20 h-20 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-3xl flex items-center justify-center text-5xl shadow-inner">📓</div>
       </div>
-      <h2 class="text-2xl font-semibold text-center mb-8">Bem-vindo de volta</h2>
-      
-      <div class="space-y-5">
+      <h2 class="text-3xl font-semibold text-center mb-2">Bem-vindo</h2>
+      <p class="text-zinc-400 text-center mb-8">Faça login para acessar suas anotações</p>
+
+      <div class="space-y-6">
         <div>
-          <label class="block text-sm text-zinc-400 mb-1">E-mail</label>
-          <input type="email" id="email" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-violet-500" placeholder="seu@email.com">
+          <label class="block text-sm text-zinc-400 mb-2">E-mail</label>
+          <input id="email" type="email" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-violet-500" placeholder="seu@email.com">
         </div>
         <div>
-          <label class="block text-sm text-zinc-400 mb-1">Senha</label>
-          <input type="password" id="senha" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-violet-500" placeholder="••••••••">
+          <label class="block text-sm text-zinc-400 mb-2">Senha</label>
+          <input id="senha" type="password" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-violet-500" placeholder="••••••••">
         </div>
+
         <button onclick="fazerLogin()" 
-                class="w-full bg-white text-zinc-900 font-semibold py-4 rounded-3xl hover:bg-zinc-100 transition-colors">
+                class="w-full bg-white text-zinc-950 font-semibold py-4 rounded-3xl hover:bg-zinc-100 transition-colors text-lg">
           Entrar
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Outros modais (nova nota, configurações, etc.) seguem o mesmo padrão de design limpo. -->
-  <!-- Por brevidade, mantive a estrutura original dos modais mas apliquei as mesmas classes modernas. -->
-  <!-- Você pode substituir os modais antigos pelos novos estilos semelhantes ao login. -->
-
-  <!-- Configurações Modal (limpo) -->
-  <div id="settings-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] modal hidden">
+  <!-- Configurações Modal -->
+  <div id="settings-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[200] modal">
     <div class="bg-zinc-900 rounded-3xl w-full max-w-lg mx-4 p-8">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex justify-between items-center mb-8">
         <h3 class="text-2xl font-semibold">Configurações</h3>
-        <button onclick="closeSettings()" class="text-3xl leading-none text-zinc-400 hover:text-white">×</button>
+        <button onclick="closeSettings()" class="text-4xl text-zinc-400 hover:text-white leading-none">×</button>
       </div>
-      
-      <div class="space-y-8">
+
+      <div class="space-y-10">
         <div>
-          <p class="text-sm text-zinc-400 mb-3">Exportar / Importar Configuração</p>
-          <div class="flex gap-3">
+          <p class="text-zinc-400 text-sm mb-4">Exportar / Importar Configuração</p>
+          <div class="grid grid-cols-2 gap-4">
             <button onclick="exportConfig()" 
-                    class="flex-1 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-3xl text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                    class="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-3xl font-medium flex items-center justify-center gap-2 transition-colors">
               ⬇ Exportar JSON
             </button>
-            <label class="flex-1 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-3xl text-sm font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer">
+            <label class="py-4 bg-zinc-800 hover:bg-zinc-700 rounded-3xl font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer">
               ⬆ Importar JSON
               <input type="file" id="import-config" accept=".json" class="hidden" onchange="importConfig(event)">
             </label>
@@ -158,44 +157,114 @@
         </div>
 
         <div>
-          <p class="text-sm text-zinc-400 mb-3">Importar Nota Cifrada</p>
-          <label class="block w-full py-6 border-2 border-dashed border-zinc-700 hover:border-violet-500 rounded-3xl text-center cursor-pointer transition-colors">
-            <i class="fas fa-file-upload text-4xl mb-3 text-zinc-500"></i>
-            <p class="text-sm">Selecione um arquivo .anote</p>
+          <p class="text-zinc-400 text-sm mb-4">Importar Nota Cifrada</p>
+          <label class="block border-2 border-dashed border-zinc-700 hover:border-violet-500 rounded-3xl p-10 text-center cursor-pointer transition-colors">
+            <i class="fas fa-file-upload text-5xl mb-4 text-zinc-500"></i>
+            <p class="font-medium">Clique ou arraste um arquivo .anote</p>
             <input type="file" id="import-anote" accept=".anote" class="hidden" onchange="importAnote(event)">
           </label>
         </div>
       </div>
 
       <button onclick="closeSettings()" 
-              class="mt-10 w-full py-4 border border-zinc-700 hover:bg-zinc-800 rounded-3xl font-medium">
+              class="mt-12 w-full py-4 border border-zinc-700 hover:bg-zinc-800 rounded-3xl font-medium">
         Fechar
       </button>
     </div>
   </div>
 
   <script>
-    // === Seu JavaScript original vai aqui (não alterei a lógica) ===
-    // Apenas adicione chamadas para atualizar o UI responsivo quando necessário.
-    // Por exemplo: após carregar notas, chame renderNotes() com as novas classes.
-
-    function toggleTheme() {
-      document.documentElement.classList.toggle('dark');
-      const btn = document.getElementById('theme-btn');
-      btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+    // ==================== TAILWIND SCRIPT ====================
+    tailwind.config = {
+      content: [],
+      theme: { extend: {} }
     }
 
-    function logout() { alert('Logout simulado'); }
-    function novaNota() { alert('Abrir modal de nova nota (mantenha sua lógica)'); }
-    function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
-    function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-    function showAllNotes() { /* sua lógica */ }
+    // ==================== TEMA ====================
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark')
+      const btn = document.getElementById('theme-btn')
+      btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙'
+    }
 
-    // Inicialização
+    // ==================== LOGIN ====================
+    function fazerLogin() {
+      const email = document.getElementById('email').value.trim()
+      const senha = document.getElementById('senha').value.trim()
+
+      if (!email || !senha) {
+        alert("Por favor, preencha o e-mail e a senha.")
+        return
+      }
+
+      // TODO: Cole aqui sua lógica real de login com Supabase
+      // Exemplo básico:
+      // const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha })
+
+      console.log("Login tentado com:", email)
+      
+      // Simulação por enquanto (funciona no GitHub Pages)
+      document.getElementById('login-modal').classList.add('hidden')
+      alert("✅ Login realizado com sucesso!\n\nAgora substitua esta simulação pela sua integração real com Supabase.")
+      
+      // Depois de integrar Supabase, chame aqui:
+      // loadNotes()
+    }
+
+    function logout() {
+      if (confirm("Deseja realmente sair?")) {
+        location.reload()
+      }
+    }
+
+    // ==================== MODAIS ====================
+    function openSettings() {
+      document.getElementById('settings-modal').classList.remove('hidden')
+    }
+
+    function closeSettings() {
+      document.getElementById('settings-modal').classList.add('hidden')
+    }
+
+    function novaNota() {
+      alert("Modal de Nova Nota em breve...\n\nMantenha sua função original aqui.")
+    }
+
+    function novaTag() {
+      alert("Criar nova tag (sua função original)")
+    }
+
+    function showAllNotes() {
+      alert("Mostrando todas as notas")
+    }
+
+    // ==================== EXPORT / IMPORT (placeholders) ====================
+    function exportConfig() {
+      alert("Exportando configuração JSON... (implemente sua função)")
+    }
+
+    function importConfig(e) {
+      alert("Importando arquivo JSON... (implemente sua função)")
+      e.target.value = ''
+    }
+
+    function importAnote(e) {
+      alert("Importando nota cifrada .anote... (implemente sua função)")
+      e.target.value = ''
+    }
+
+    function toggleMobileMenu() {
+      alert("Menu mobile (pode ser expandido depois)")
+    }
+
+    // ==================== INICIALIZAÇÃO ====================
     window.onload = () => {
-      // Mostrar login ou conteúdo conforme sua lógica original
-      document.getElementById('login-modal').classList.remove('hidden'); // exemplo
-    };
+      // Mostra o modal de login ao carregar
+      document.getElementById('login-modal').classList.remove('hidden')
+      
+      // Dica para o usuário
+      console.log("%cApp de Notas carregado com sucesso! 🎉\nCole sua lógica de Supabase na função fazerLogin().", "color: violet; font-size: 14px")
+    }
   </script>
 </body>
 </html>
