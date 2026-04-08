@@ -1,562 +1,711 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notas Pessoais</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .note-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .note-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-    .modal { animation: modalPop 0.3s ease-out; }
-    @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    .bottom-nav { box-shadow: 0 -4px 10px -2px rgb(0 0 0 / 0.15); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1410">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Notas">
+<title>Notas Pessoais</title>
+<link rel="manifest" id="pwaManifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Special+Elite&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f5f0e8;
+    --paper-dark: #ede6d6;
+    --card-bg: #ffffff;
+    --ink: #1a1410;
+    --ink-light: #4a3f35;
+    --ink-faint: #8a7a6a;
+    --accent: #8b3a1a;
+    --accent-soft: #c4673a;
+    --locked: #3a5a8b;
+    --locked-soft: #5a7ab0;
+    --file-color: #2d6b4a;
+    --file-soft: #4a9a6e;
+    --border: #c8b89a;
+    --shadow: rgba(26,20,16,0.12);
+    --tag-bg: #e8dcc8;
+    --header-bg: #1a1410;
+    --line-color: rgba(139,90,60,0.07);
+    --search-bg: #ffffff;
+    --modal-bg: #f5f0e8;
+    --sql-bg: #1a1410;
+    --sql-color: #a8d8a8;
+  }
+  body.dark {
+    --paper: #1c1814;
+    --paper-dark: #242018;
+    --card-bg: #2a2420;
+    --ink: #e8e0d0;
+    --ink-light: #c4b89a;
+    --ink-faint: #7a6a5a;
+    --accent: #c4673a;
+    --accent-soft: #e07a4a;
+    --locked: #5a7ab0;
+    --locked-soft: #7a9ad0;
+    --file-color: #4a9a6e;
+    --file-soft: #6abd8e;
+    --border: #3a3028;
+    --shadow: rgba(0,0,0,0.35);
+    --tag-bg: #302820;
+    --header-bg: #0e0c0a;
+    --line-color: rgba(200,160,100,0.04);
+    --search-bg: #2a2420;
+    --modal-bg: #1e1a16;
+    --sql-bg: #0e0c0a;
+    --sql-color: #6fcf6f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'IM Fell English', serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    background-image: repeating-linear-gradient(transparent,transparent 27px,var(--line-color) 27px,var(--line-color) 28px);
+    transition: background 0.3s, color 0.3s;
+  }
+  header {
+    background: var(--header-bg);
+    color: var(--paper);
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    border-bottom: 3px solid var(--accent);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 0.5rem;
+  }
+  .logo { font-family:'Playfair Display',serif; font-size:1.15rem; letter-spacing:0.05em; display:flex; align-items:center; gap:0.4rem; white-space:nowrap; flex-shrink:0; }
+  .header-actions { display:flex; gap:0.4rem; align-items:center; flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+  .btn-primary { background:var(--accent); color:#fff; border:none; padding:0.4rem 0.75rem; font-family:'Special Elite',cursive; font-size:0.78rem; cursor:pointer; letter-spacing:0.04em; transition:background 0.2s; white-space:nowrap; flex-shrink:0; }
+  .btn-primary:hover { background:var(--accent-soft); }
+  .btn-primary.file-btn { background:var(--file-color); }
+  .btn-primary.file-btn:hover { background:var(--file-soft); }
+  .btn-icon { background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.75); padding:0.38rem 0.55rem; font-size:1rem; cursor:pointer; border-radius:3px; transition:background 0.2s,color 0.2s; flex-shrink:0; line-height:1; }
+  .btn-icon:hover { background:rgba(255,255,255,0.12); color:#fff; }
+  .supabase-status { font-family:'Special Elite',cursive; font-size:0.65rem; letter-spacing:0.07em; opacity:0.7; display:flex; align-items:center; gap:0.35rem; flex-shrink:0; }
+  .status-dot { width:7px; height:7px; border-radius:50%; background:#aaa; transition:background 0.3s; flex-shrink:0; }
+  .status-dot.connected { background:#6fcf6f; }
+  .status-dot.error { background:#e07070; }
+  .app-layout { display:grid; grid-template-columns:220px 1fr; min-height:calc(100vh - 56px); }
+  aside { background:var(--paper-dark); border-right:1px solid var(--border); padding:1.25rem 0.85rem; position:sticky; top:56px; height:calc(100vh - 56px); overflow-y:auto; transition:background 0.3s; }
+  .sidebar-section-title { font-family:'Special Elite',cursive; font-size:0.65rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:0.65rem; padding-bottom:0.35rem; border-bottom:1px solid var(--border); }
+  .tag-list { display:flex; flex-direction:column; gap:0.2rem; margin-bottom:1.25rem; }
+  .tag-item { display:flex; align-items:center; justify-content:space-between; padding:0.38rem 0.55rem; border-radius:2px; cursor:pointer; font-family:'Special Elite',cursive; font-size:0.78rem; letter-spacing:0.03em; color:var(--ink-light); transition:background 0.15s; }
+  .tag-item:hover, .tag-item.active { background:var(--tag-bg); color:var(--ink); }
+  .tag-item.active { border-left:2px solid var(--accent); }
+  .tag-count { background:var(--border); color:var(--ink-faint); padding:1px 5px; font-size:0.65rem; border-radius:10px; }
+  .tag-add-form { display:flex; gap:0.35rem; margin-bottom:1.25rem; }
+  .tag-add-form input { flex:1; background:var(--search-bg); border:1px solid var(--border); padding:0.32rem 0.45rem; font-family:'Special Elite',cursive; font-size:0.74rem; color:var(--ink); outline:none; min-width:0; }
+  .tag-add-form input:focus { border-color:var(--ink-light); }
+  .tag-add-form button { background:var(--ink); color:var(--paper); border:none; padding:0.32rem 0.55rem; cursor:pointer; font-size:0.95rem; transition:opacity 0.2s; flex-shrink:0; }
+  .tag-add-form button:hover { opacity:0.75; }
+  main { padding:1.25rem; }
+  .main-toolbar { display:flex; align-items:center; gap:0.75rem; margin-bottom:1.25rem; flex-wrap:wrap; }
+  .search-box { flex:1; min-width:160px; max-width:360px; background:var(--search-bg); border:1px solid var(--border); padding:0.48rem 0.7rem; font-family:'IM Fell English',serif; font-size:0.88rem; color:var(--ink); outline:none; }
+  .search-box:focus { border-color:var(--ink-light); }
+  .filter-label { font-family:'Special Elite',cursive; font-size:0.74rem; letter-spacing:0.07em; color:var(--ink-faint); }
+  .content-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.1rem; }
+  .note-card { background:var(--card-bg); border:1px solid var(--border); padding:1.1rem; position:relative; box-shadow:2px 3px 8px var(--shadow); transition:transform 0.15s,box-shadow 0.15s,background 0.3s; cursor:pointer; }
+  .note-card:hover { transform:translateY(-2px); box-shadow:3px 5px 14px var(--shadow); }
+  .note-card.locked-card { border-top:3px solid var(--locked); }
+  .note-card.unlocked-card { border-top:3px solid var(--accent); }
+  .file-card { background:var(--card-bg); border:1px solid var(--border); border-top:3px solid var(--file-color); padding:1.1rem; position:relative; box-shadow:2px 3px 8px var(--shadow); transition:transform 0.15s,box-shadow 0.15s,background 0.3s; cursor:pointer; }
+  .file-card:hover { transform:translateY(-2px); box-shadow:3px 5px 14px var(--shadow); }
+  .card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.65rem; }
+  .card-title { font-family:'Playfair Display',serif; font-size:1rem; font-weight:600; color:var(--ink); line-height:1.3; flex:1; margin-right:0.4rem; word-break:break-word; }
+  .card-badge { font-size:0.82rem; opacity:0.6; flex-shrink:0; }
+  .note-preview { font-size:0.82rem; color:var(--ink-light); line-height:1.6; margin-bottom:0.65rem; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .note-preview.encrypted-preview { font-family:'Special Elite',cursive; font-size:0.72rem; color:var(--locked); letter-spacing:0.05em; opacity:0.7; }
+  .file-meta { display:flex; align-items:center; gap:0.45rem; margin-bottom:0.65rem; }
+  .file-ext-badge { background:var(--file-color); color:white; font-family:'Special Elite',cursive; font-size:0.62rem; letter-spacing:0.07em; padding:2px 6px; text-transform:uppercase; }
+  .file-size { font-family:'Special Elite',cursive; font-size:0.68rem; color:var(--ink-faint); letter-spacing:0.04em; }
+  .file-desc { font-size:0.79rem; color:var(--ink-light); line-height:1.5; margin-bottom:0.65rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; font-style:italic; }
+  .card-footer { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.35rem; }
+  .card-tags { display:flex; flex-wrap:wrap; gap:0.25rem; }
+  .tag-chip { background:var(--tag-bg); color:var(--ink-light); padding:2px 7px; font-family:'Special Elite',cursive; font-size:0.65rem; letter-spacing:0.05em; border-radius:2px; }
+  .card-date { font-family:'Special Elite',cursive; font-size:0.65rem; color:var(--ink-faint); letter-spacing:0.04em; }
+  .card-actions { position:absolute; top:0.55rem; right:0.55rem; display:flex; gap:0.25rem; opacity:0; transition:opacity 0.15s; }
+  .note-card:hover .card-actions, .file-card:hover .card-actions { opacity:1; }
+  .icon-btn { background:transparent; border:none; cursor:pointer; padding:3px 5px; font-size:0.72rem; color:var(--ink-faint); transition:color 0.15s; }
+  .icon-btn:hover { color:var(--accent); }
+  .icon-btn.delete:hover { color:#c0392b; }
+  .icon-btn.download:hover { color:var(--file-color); }
+  .type-divider { grid-column:1/-1; font-family:'Special Elite',cursive; font-size:0.68rem; letter-spacing:0.13em; text-transform:uppercase; color:var(--ink-faint); padding:0.35rem 0; border-bottom:1px solid var(--border); margin-bottom:0.2rem; display:flex; align-items:center; gap:0.5rem; }
+  .empty-state { grid-column:1/-1; text-align:center; padding:2.5rem; color:var(--ink-faint); }
+  .empty-state h3 { font-family:'Playfair Display',serif; font-size:1.2rem; font-style:italic; margin-bottom:0.45rem; }
+  .empty-state p { font-size:0.86rem; }
+  .overlay { display:none; position:fixed; inset:0; background:rgba(10,8,6,0.65); z-index:200; align-items:center; justify-content:center; padding:0.75rem; overflow-y:auto; }
+  .overlay.open { display:flex; }
+  .editor-modal { background:var(--modal-bg); width:100%; max-width:680px; max-height:92vh; overflow-y:auto; border-top:4px solid var(--accent); box-shadow:0 20px 60px rgba(0,0,0,0.4); display:flex; flex-direction:column; }
+  .modal-header { padding:1.1rem 1.25rem 0.9rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .modal-title-area { flex:1; min-width:0; }
+  .note-title-input { width:100%; background:transparent; border:none; border-bottom:1px dashed var(--border); padding:0.28rem 0; font-family:'Playfair Display',serif; font-size:1.2rem; font-weight:600; color:var(--ink); outline:none; margin-bottom:0.55rem; }
+  .note-title-input::placeholder { color:var(--ink-faint); font-style:italic; }
+  .tags-input-area { display:flex; flex-wrap:wrap; gap:0.28rem; align-items:center; }
+  .tag-chip-remove { display:inline-flex; align-items:center; gap:0.28rem; background:var(--tag-bg); color:var(--ink-light); padding:2px 7px; font-family:'Special Elite',cursive; font-size:0.68rem; letter-spacing:0.05em; cursor:pointer; border:none; border-radius:2px; }
+  .tag-chip-remove:hover { background:var(--border); }
+  .tags-select { background:transparent; border:1px dashed var(--border); padding:2px 5px; font-family:'Special Elite',cursive; font-size:0.68rem; color:var(--ink-faint); cursor:pointer; outline:none; }
+  .modal-close { background:transparent; border:none; font-size:1.25rem; cursor:pointer; color:var(--ink-faint); padding:0.18rem 0.38rem; transition:color 0.15s; flex-shrink:0; }
+  .modal-close:hover { color:var(--ink); }
+  .crypto-bar { background:var(--header-bg); padding:0.55rem 1.25rem; display:flex; align-items:center; gap:0.85rem; flex-wrap:wrap; }
+  .crypto-status { font-family:'Special Elite',cursive; font-size:0.74rem; letter-spacing:0.07em; display:flex; align-items:center; gap:0.45rem; flex:1; }
+  .crypto-status.locked { color:#7fb3e8; }
+  .crypto-status.unlocked { color:#a8d8a8; }
+  .btn-crypto { border:none; padding:0.38rem 0.9rem; font-family:'Special Elite',cursive; font-size:0.74rem; letter-spacing:0.07em; cursor:pointer; transition:background 0.2s; }
+  .btn-decrypt { background:var(--locked-soft); color:white; }
+  .btn-decrypt:hover { background:var(--locked); }
+  .btn-encrypt { background:var(--accent); color:white; }
+  .btn-encrypt:hover { background:var(--accent-soft); }
+  .btn-export-note { background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.65); padding:0.32rem 0.65rem; font-family:'Special Elite',cursive; font-size:0.7rem; letter-spacing:0.06em; cursor:pointer; transition:background 0.2s; }
+  .btn-export-note:hover { background:rgba(255,255,255,0.1); color:#fff; }
+  .editor-body { padding:1.1rem 1.25rem; flex:1; }
+  .note-textarea { width:100%; min-height:220px; background:transparent; border:none; outline:none; font-family:'IM Fell English',serif; font-size:1rem; line-height:1.85; color:var(--ink); resize:vertical; }
+  .note-textarea::placeholder { color:var(--ink-faint); font-style:italic; }
+  .note-textarea:disabled { cursor:not-allowed; color:var(--ink-faint); opacity:0.6; }
+  .modal-footer { padding:0.9rem 1.25rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:0.65rem; align-items:center; }
+  .btn-secondary { background:transparent; border:1px solid var(--border); color:var(--ink-light); padding:0.42rem 0.9rem; font-family:'Special Elite',cursive; font-size:0.78rem; cursor:pointer; letter-spacing:0.05em; transition:border-color 0.2s,color 0.2s; }
+  .btn-secondary:hover { border-color:var(--ink-light); color:var(--ink); }
+  .file-modal { background:var(--modal-bg); width:100%; max-width:540px; max-height:90vh; overflow-y:auto; border-top:4px solid var(--file-color); box-shadow:0 20px 60px rgba(0,0,0,0.4); display:flex; flex-direction:column; }
+  .drop-zone { border:2px dashed var(--border); padding:1.75rem 1.25rem; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; position:relative; margin:1.1rem 1.25rem 0; }
+  .drop-zone:hover, .drop-zone.drag-over { border-color:var(--file-color); background:rgba(45,107,74,0.04); }
+  .drop-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .drop-icon { font-size:2rem; margin-bottom:0.45rem; opacity:0.5; }
+  .drop-label { font-family:'Special Elite',cursive; font-size:0.82rem; letter-spacing:0.06em; color:var(--ink-faint); }
+  .drop-hint { font-size:0.74rem; color:var(--ink-faint); margin-top:0.28rem; font-style:italic; }
+  .selected-file-info { margin:0.65rem 1.25rem 0; background:var(--tag-bg); padding:0.55rem 0.85rem; align-items:center; gap:0.65rem; display:none; }
+  .selected-file-info.visible { display:flex; }
+  .sel-file-name { font-family:'Special Elite',cursive; font-size:0.78rem; color:var(--ink); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sel-file-size { font-family:'Special Elite',cursive; font-size:0.68rem; color:var(--ink-faint); flex-shrink:0; }
+  .sel-clear { background:none; border:none; cursor:pointer; color:var(--ink-faint); font-size:0.88rem; transition:color 0.15s; }
+  .sel-clear:hover { color:#c0392b; }
+  .file-fields { padding:0.9rem 1.25rem; display:flex; flex-direction:column; gap:0.8rem; }
+  .field-label { display:block; font-family:'Special Elite',cursive; font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:0.28rem; }
+  .field-input { width:100%; background:var(--search-bg); border:1px solid var(--border); padding:0.42rem 0.65rem; font-family:'IM Fell English',serif; font-size:0.88rem; color:var(--ink); outline:none; }
+  .field-input:focus { border-color:var(--ink-light); }
+  .field-textarea { width:100%; background:var(--search-bg); border:1px solid var(--border); padding:0.42rem 0.65rem; font-family:'IM Fell English',serif; font-size:0.84rem; color:var(--ink); outline:none; resize:vertical; min-height:65px; line-height:1.5; }
+  .field-textarea:focus { border-color:var(--ink-light); }
+  .file-viewer-modal { background:var(--modal-bg); width:100%; max-width:700px; max-height:92vh; overflow-y:auto; border-top:4px solid var(--file-color); box-shadow:0 20px 60px rgba(0,0,0,0.4); display:flex; flex-direction:column; }
+  .file-viewer-header { padding:1.1rem 1.25rem 0.9rem; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:0.9rem; }
+  .file-viewer-icon { font-size:1.85rem; flex-shrink:0; margin-top:0.1rem; }
+  .file-viewer-info { flex:1; min-width:0; }
+  .file-viewer-title { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:600; color:var(--ink); margin-bottom:0.28rem; word-break:break-word; }
+  .file-viewer-meta { display:flex; gap:0.65rem; flex-wrap:wrap; align-items:center; margin-bottom:0.45rem; }
+  .file-viewer-desc { font-size:0.84rem; color:var(--ink-light); font-style:italic; line-height:1.5; }
+  .file-viewer-tags { display:flex; flex-wrap:wrap; gap:0.28rem; margin-top:0.45rem; }
+  .file-preview-area { flex:1; padding:1.1rem 1.25rem; display:flex; flex-direction:column; align-items:center; gap:0.9rem; }
+  .preview-image { max-width:100%; max-height:380px; object-fit:contain; box-shadow:0 4px 18px var(--shadow); }
+  .preview-pdf-frame { width:100%; height:400px; border:1px solid var(--border); }
+  .preview-text-block { width:100%; background:var(--search-bg); border:1px solid var(--border); padding:0.9rem; font-family:'Special Elite',cursive; font-size:0.78rem; line-height:1.7; color:var(--ink); max-height:340px; overflow-y:auto; white-space:pre-wrap; word-break:break-word; }
+  .preview-generic { padding:2.25rem; text-align:center; color:var(--ink-faint); }
+  .preview-generic .big-icon { font-size:3.25rem; margin-bottom:0.65rem; }
+  .preview-generic p { font-family:'Special Elite',cursive; font-size:0.82rem; letter-spacing:0.06em; }
+  .file-viewer-footer { padding:0.9rem 1.25rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:0.65rem; align-items:center; }
+  .btn-download { background:var(--file-color); color:white; border:none; padding:0.42rem 1rem; font-family:'Special Elite',cursive; font-size:0.82rem; cursor:pointer; letter-spacing:0.06em; transition:background 0.2s; }
+  .btn-download:hover { background:var(--file-soft); }
+  .pass-modal { background:var(--modal-bg); width:100%; max-width:360px; border-top:4px solid var(--locked); box-shadow:0 20px 60px rgba(0,0,0,0.4); padding:1.75rem; }
+  .pass-modal h3 { font-family:'Playfair Display',serif; font-size:1.15rem; color:var(--ink); margin-bottom:0.35rem; }
+  .pass-modal p { font-size:0.82rem; color:var(--ink-faint); margin-bottom:1.1rem; line-height:1.5; }
+  .pass-input-wrap { position:relative; margin-bottom:0.9rem; }
+  .pass-input { width:100%; background:var(--search-bg); border:1px solid var(--border); padding:0.55rem 0.7rem; font-family:'Special Elite',cursive; font-size:0.88rem; color:var(--ink); outline:none; letter-spacing:0.07em; }
+  .pass-input:focus { border-color:var(--locked-soft); }
+  .pass-error { color:#e07070; font-family:'Special Elite',cursive; font-size:0.72rem; letter-spacing:0.05em; margin-top:0.35rem; display:none; }
+  .pass-error.visible { display:block; }
+  .pass-modal-actions { display:flex; gap:0.65rem; justify-content:flex-end; }
+  .config-modal { background:var(--modal-bg); width:100%; max-width:460px; border-top:4px solid var(--ink); box-shadow:0 20px 60px rgba(0,0,0,0.4); padding:1.75rem; max-height:92vh; overflow-y:auto; }
+  .config-modal h3 { font-family:'Playfair Display',serif; font-size:1.15rem; color:var(--ink); margin-bottom:1.1rem; padding-bottom:0.55rem; border-bottom:1px solid var(--border); }
+  .config-field { margin-bottom:0.9rem; }
+  .config-label { display:block; font-family:'Special Elite',cursive; font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:0.35rem; }
+  .config-input { width:100%; background:var(--search-bg); border:1px solid var(--border); padding:0.45rem 0.65rem; font-family:'Special Elite',cursive; font-size:0.82rem; color:var(--ink); outline:none; }
+  .config-input:focus { border-color:var(--ink-light); }
+  .config-hint { font-size:0.74rem; color:var(--ink-faint); margin-top:0.28rem; line-height:1.4; }
+  .config-actions { display:flex; gap:0.65rem; justify-content:flex-end; margin-top:1.25rem; flex-wrap:wrap; }
+  .sql-block { background:var(--sql-bg); color:var(--sql-color); padding:0.65rem 0.9rem; font-family:'Special Elite',cursive; font-size:0.68rem; line-height:1.7; letter-spacing:0.03em; margin-top:0.9rem; max-height:160px; overflow-y:auto; }
+  .io-row { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.25rem; }
+  .toast { position:fixed; bottom:1.25rem; right:1.25rem; background:var(--header-bg); color:var(--paper); padding:0.55rem 1.1rem; font-family:'Special Elite',cursive; font-size:0.78rem; letter-spacing:0.06em; z-index:999; opacity:0; transform:translateY(10px); transition:opacity 0.25s,transform 0.25s; pointer-events:none; max-width:280px; }
+  .toast.show { opacity:1; transform:translateY(0); }
+  .toast.success { border-left:3px solid #6fcf6f; }
+  .toast.error { border-left:3px solid #e07070; }
+  .toast.info { border-left:3px solid var(--locked-soft); }
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  @media (max-width:640px) {
+    .app-layout { grid-template-columns:1fr; }
+    aside { position:static; height:auto; border-right:none; border-bottom:1px solid var(--border); padding:1rem 0.85rem; }
+    main { padding:0.9rem; }
+    .content-grid { grid-template-columns:1fr; }
+    .card-actions { opacity:1; }
+  }
+  @media (max-width:400px) {
+    .logo span:last-child { display:none; }
+    .btn-primary { padding:0.38rem 0.55rem; font-size:0.72rem; }
+  }
+</style>
 </head>
-<body class="bg-zinc-950 text-zinc-200 min-h-screen">
+<body>
 
-  <!-- HEADER -->
-  <header class="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-violet-600 rounded-2xl flex items-center justify-center text-3xl">📓</div>
-        <h1 class="text-3xl font-semibold tracking-tight">Notas</h1>
-      </div>
-      <div class="flex items-center gap-4">
-        <button onclick="toggleTheme()" id="theme-btn" class="p-3 hover:bg-zinc-800 rounded-2xl text-2xl">🌙</button>
-        <button onclick="openSettings()" class="px-5 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-3xl flex items-center gap-2 text-sm font-medium">
-          <i class="fas fa-cog"></i> Config
-        </button>
-        <button onclick="logout()" class="px-5 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-3xl flex items-center gap-2 text-sm font-medium">
-          Sair <i class="fas fa-sign-out-alt"></i>
-        </button>
+<div id="loginOverlay" style="display:none">
+  <div class="login-box">
+    <h2>📓 Notas Pessoais</h2>
+    <p>Faça login para acessar suas anotações.</p>
+    <div class="login-field">
+      <label>E-mail</label>
+      <input type="email" id="loginEmail" autocomplete="username" placeholder="seu@email.com">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')handleLogin()">
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+<div id="appShell" style="display:none">
+<header>
+  <div class="logo"><span>📜</span><span> Arquivo</span></div>
+  <div class="header-actions">
+    <div class="supabase-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">—</span>
+    </div>
+    <button class="btn-icon" onclick="openConfig()" title="Configurações / Supabase">⚙</button>
+    <button class="btn-primary file-btn" onclick="openFileUpload()" title="Anexar arquivo">📎</button>
+    <button class="btn-primary" onclick="openNewNote()" title="Nova nota">✏</button>
+    <button id="logoutBtn" onclick="logout()" title="Sair">Sair</button> <button class="btn-icon" onclick="toggleDark()" id="darkBtn" title="Tema escuro">🌙</button>
+  </div>
+</header>
+
+<div class="app-layout">
+  <aside>
+    <div class="sidebar-section-title">Nova Tag</div>
+    <div class="tag-add-form">
+      <input type="text" id="newTagInput" placeholder="nova tag…" maxlength="30" onkeydown="if(event.key==='Enter')addTag()">
+      <button onclick="addTag()">+</button>
+    </div>
+    <div class="sidebar-section-title">Tags</div>
+    <div class="tag-list" id="tagList">
+      <div class="tag-item active" data-tag="all" onclick="filterByTag(this,'all')">
+        <span>📋 Todas</span><span class="tag-count" id="countAll">0</span>
       </div>
     </div>
-  </header>
+  </aside>
+  <main>
+    <div class="main-toolbar">
+      <input class="search-box" type="text" placeholder="Buscar notas e arquivos…" id="searchInput" oninput="renderContent()">
+      <span class="filter-label" id="filterLabel">Todas</span>
+    </div>
+    <div class="content-grid" id="contentGrid"></div>
+  </main>
+</div>
 
-  <div class="flex max-w-7xl mx-auto" style="height: calc(100vh - 73px);">
-
-    <!-- SIDEBAR DESKTOP -->
-    <aside class="hidden md:flex w-72 bg-zinc-900 border-r border-zinc-800 flex-col overflow-auto">
-      <div class="p-6">
-        <button onclick="novaNota()" class="w-full bg-violet-600 hover:bg-violet-700 text-white py-4 rounded-3xl font-semibold flex items-center justify-center gap-3 text-lg shadow-lg">
-          <i class="fas fa-plus"></i> NOVA NOTA
-        </button>
-      </div>
-
-      <div class="px-6 pb-4">
-        <div class="relative">
-          <input id="search-input" type="text" placeholder="Buscar notas ou tags..." 
-                 onkeyup="if(event.key==='Enter') filtrarNotas()" 
-                 class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl py-3 px-5 pl-12 focus:outline-none focus:border-violet-500">
-          <i class="fas fa-search absolute left-5 top-3.5 text-zinc-500"></i>
+<!-- NOTE EDITOR -->
+<div class="overlay" id="editorOverlay">
+  <div class="editor-modal">
+    <div class="modal-header">
+      <div class="modal-title-area">
+        <input class="note-title-input" type="text" id="noteTitleInput" placeholder="Título da anotação…" maxlength="120">
+        <div class="tags-input-area" id="noteTagsArea">
+          <select class="tags-select" id="noteTagSelect" onchange="addTagToNote()"><option value="">+ tag</option></select>
         </div>
       </div>
-
-      <div class="px-6">
-        <div class="flex items-center justify-between text-xs uppercase text-zinc-400 mb-3">
-          <span>Tags</span>
-          <button onclick="novaTag()" class="text-violet-400 hover:text-white"><i class="fas fa-plus"></i></button>
-        </div>
-        <div id="tag-list" class="space-y-1"></div>
-      </div>
-    </aside>
-
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="flex-1 p-4 md:p-8 overflow-auto bg-zinc-950">
-      <div class="flex justify-between items-center mb-6">
-        <h2 id="page-title" class="text-3xl font-semibold">Todas as Notas</h2>
-        <button onclick="toggleMobileMenu()" class="md:hidden p-3 bg-zinc-900 rounded-2xl text-xl"><i class="fas fa-bars"></i></button>
-      </div>
-
-      <div id="notes-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
-      <div id="empty-state" class="hidden flex-col items-center justify-center py-20">
-        <div class="text-8xl mb-6 opacity-30">📓</div>
-        <p class="text-zinc-400 text-xl">Nenhuma nota ainda...</p>
-        <button onclick="novaNota()" class="mt-8 px-8 py-4 bg-violet-600 hover:bg-violet-700 rounded-3xl font-medium flex items-center gap-3">
-          <i class="fas fa-plus"></i> Criar primeira nota
-        </button>
-      </div>
-    </main>
-  </div>
-
-  <!-- BOTTOM NAV MOBILE -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 py-2 z-50">
-    <div class="flex justify-around items-center">
-      <button onclick="showAllNotes()" class="flex flex-col items-center text-violet-400">
-        <i class="fas fa-home text-2xl"></i>
-        <span class="text-xs mt-1">Todas</span>
-      </button>
-      <button onclick="novaNota()" class="flex flex-col items-center -mt-9 bg-violet-600 w-16 h-16 rounded-3xl shadow-2xl text-4xl text-white flex items-center justify-center">
-        +
-      </button>
-      <button onclick="openSettings()" class="flex flex-col items-center text-zinc-400">
-        <i class="fas fa-cog text-2xl"></i>
-        <span class="text-xs mt-1">Config</span>
-      </button>
+      <button class="modal-close" onclick="closeEditor()">✕</button>
     </div>
-  </nav>
-
-  <!-- ====================== MODAIS (todos do original, modernizados) ====================== -->
-
-  <!-- Login -->
-  <div id="login-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-[200] modal">
-    <div class="bg-zinc-900 rounded-3xl w-full max-w-md mx-4 p-8">
-      <div class="flex justify-center mb-6"><div class="text-7xl">📓</div></div>
-      <h2 class="text-3xl font-semibold text-center mb-2">Bem-vindo de volta</h2>
-      <p class="text-center text-zinc-400 mb-8">Faça login para acessar suas anotações</p>
-      <input id="email" type="email" placeholder="E-mail" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 mb-4 focus:outline-none focus:border-violet-500">
-      <input id="senha" type="password" placeholder="Senha" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 mb-8 focus:outline-none focus:border-violet-500">
-      <button onclick="fazerLogin()" class="w-full py-4 bg-white text-zinc-900 font-semibold rounded-3xl text-lg">Entrar</button>
+    <div class="crypto-bar" id="cryptoBar">
+      <div class="crypto-status locked" id="cryptoStatus">🔒 <span id="cryptoStatusText">Nota cifrada</span></div>
+      <button class="btn-export-note" id="btnExportNote" onclick="exportCurrentNote()" title="Exportar .anote">⬇ .anote</button>
+      <button class="btn-crypto btn-decrypt" id="btnDecrypt" onclick="requestDecrypt()">Decifrar</button>
+      <button class="btn-crypto btn-encrypt" id="btnEncrypt" onclick="encryptAndLock()" style="display:none">Cifrar</button>
+    </div>
+    <div class="editor-body">
+      <textarea class="note-textarea" id="noteTextarea" placeholder="Escreva sua anotação aqui…" rows="10"></textarea>
+    </div>
+    <div class="modal-footer">
+      <span style="flex:1;font-family:'Special Elite',cursive;font-size:0.68rem;color:var(--ink-faint);letter-spacing:0.05em" id="editorHint"></span>
+      <button class="btn-secondary" onclick="closeEditor()">Cancelar</button>
+      <button class="btn-primary" onclick="saveNote()">Salvar</button>
     </div>
   </div>
+</div>
 
-  <!-- Nova Nota / Editar Nota -->
-  <div id="nota-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[200] modal">
-    <div class="bg-zinc-900 rounded-3xl w-full max-w-2xl mx-4 p-8 max-h-[90vh] overflow-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-2xl font-semibold" id="nota-modal-title">Nova Nota</h3>
-        <button onclick="fecharNotaModal()" class="text-4xl text-zinc-400">×</button>
-      </div>
-      <input id="nota-titulo" type="text" placeholder="Título da nota" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 mb-4 focus:outline-none focus:border-violet-500">
-      
-      <div class="flex gap-2 mb-4">
-        <button onclick="toggleCifragem()" id="btn-cifrar" class="flex-1 py-3 rounded-3xl border border-zinc-700 hover:bg-zinc-800 flex items-center justify-center gap-2">
-          🔒 Nota cifrada
-        </button>
-        <button onclick="anexarArquivo()" class="flex-1 py-3 rounded-3xl border border-zinc-700 hover:bg-zinc-800 flex items-center justify-center gap-2">
-          📎 Anexar arquivo
-        </button>
-      </div>
-
-      <textarea id="nota-conteudo" rows="10" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 focus:outline-none focus:border-violet-500" placeholder="Escreva sua nota aqui..."></textarea>
-
-      <div id="senha-cifragem" class="hidden mt-4">
-        <p class="text-sm text-zinc-400 mb-2">Palavra-passe para cifrar esta nota</p>
-        <input id="nota-senha" type="password" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 focus:outline-none focus:border-violet-500" placeholder="Digite a senha">
-      </div>
-
-      <div class="flex justify-end gap-3 mt-8">
-        <button onclick="fecharNotaModal()" class="px-8 py-3 border border-zinc-700 rounded-3xl hover:bg-zinc-800">Cancelar</button>
-        <button onclick="salvarNota()" class="px-8 py-3 bg-violet-600 hover:bg-violet-700 rounded-3xl">Salvar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Nova Tag -->
-  <div id="tag-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[200] modal">
-    <div class="bg-zinc-900 rounded-3xl w-full max-w-md mx-4 p-8">
-      <h3 class="text-2xl font-semibold mb-6">Nova Tag</h3>
-      <input id="nova-tag-nome" type="text" placeholder="Nome da tag" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 mb-8 focus:outline-none focus:border-violet-500">
-      <div class="flex justify-end gap-3">
-        <button onclick="fecharTagModal()" class="px-8 py-3 border border-zinc-700 rounded-3xl hover:bg-zinc-800">Cancelar</button>
-        <button onclick="salvarNovaTag()" class="px-8 py-3 bg-violet-600 hover:bg-violet-700 rounded-3xl">Criar Tag</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Senha (decifrar nota) -->
-  <div id="senha-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[200] modal">
-    <div class="bg-zinc-900 rounded-3xl w-full max-w-md mx-4 p-8">
-      <h3 class="text-2xl font-semibold mb-2">🔒 Nota cifrada</h3>
-      <p class="text-zinc-400 mb-8">Informe a palavra-passe para esta nota</p>
-      <input id="senha-decifrar" type="password" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 mb-8 focus:outline-none focus:border-violet-500" placeholder="Palavra-passe">
-      <div id="erro-senha" class="hidden text-red-400 text-sm mb-4">Palavra-passe incorreta.</div>
-      <div class="flex justify-end gap-3">
-        <button onclick="fecharSenhaModal()" class="px-8 py-3 border border-zinc-700 rounded-3xl hover:bg-zinc-800">Cancelar</button>
-        <button onclick="decifrarNota()" class="px-8 py-3 bg-violet-600 hover:bg-violet-700 rounded-3xl">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Anexar Arquivo -->
-  <div id="anexo-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[200] modal">
-    <div class="bg-zinc-900 rounded-3xl w-full max-w-md mx-4 p-8">
-      <h3 class="text-2xl font-semibold mb-6">Anexar Arquivo</h3>
-      <div id="drop-zone" class="border-2 border-dashed border-zinc-700 hover:border-violet-500 rounded-3xl p-12 text-center cursor-pointer transition-colors"
-           ondrop="handleDrop(event)" ondragover="event.preventDefault()">
-        <i class="fas fa-cloud-upload-alt text-5xl mb-4 text-zinc-400"></i>
-        <p class="font-medium">Arraste ou clique para selecionar</p>
-        <p class="text-sm text-zinc-400">Imagens, PDFs, documentos…</p>
-        <input type="file" id="file-input" class="hidden" onchange="handleFileSelect(event)">
-      </div>
-      <div class="mt-6">
-        <label class="block text-sm text-zinc-400 mb-2">Nome / Título</label>
-        <input id="anexo-titulo" type="text" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 focus:outline-none focus:border-violet-500">
-      </div>
-      <div class="mt-4">
-        <label class="block text-sm text-zinc-400 mb-2">Descrição (opcional)</label>
-        <input id="anexo-descricao" type="text" class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-6 py-4 focus:outline-none focus:border-violet-500">
-      </div>
-      <div class="flex justify-end gap-3 mt-10">
-        <button onclick="fecharAnexoModal()" class="px-8 py-3 border border-zinc-700 rounded-3xl hover:bg-zinc-800">Cancelar</button>
-        <button onclick="salvarAnexo()" class="px-8 py-3 bg-violet-600 hover:bg-violet-700 rounded-3xl">Salvar Arquivo</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Visualizar Arquivo -->
-  <div id="view-file-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[200] modal">
-    <div class="bg-zinc-900 rounded-3xl w-full max-w-2xl mx-4 p-8">
-      <div class="flex justify-between mb-6">
-        <h3 id="view-file-titulo" class="text-2xl font-semibold"></h3>
-        <button onclick="fecharViewFileModal()" class="text-4xl text-zinc-400">×</button>
-      </div>
-      <div id="file-preview" class="min-h-[300px] flex items-center justify-center border border-zinc-700 rounded-3xl mb-8 bg-zinc-800"></div>
-      <div class="flex gap-3">
-        <button onclick="downloadFileAtual()" class="flex-1 py-4 bg-zinc-800 hover:bg-zinc-700 rounded-3xl flex items-center justify-center gap-2">
-          ⬇ Baixar
-        </button>
-        <button onclick="fecharViewFileModal()" class="flex-1 py-4 border border-zinc-700 hover:bg-zinc-800 rounded-3xl">Fechar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Configurações (limpa conforme seu pedido) -->
-  <div id="settings-modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-[200] modal">
-    <div class="bg-zinc-900 rounded-3xl w-full max-w-lg mx-4 p-8">
-      <div class="flex justify-between items-center mb-8">
-        <h3 class="text-2xl font-semibold">Supabase & Configurações</h3>
-        <button onclick="closeSettings()" class="text-4xl text-zinc-400">×</button>
-      </div>
-
-      <div class="space-y-10">
-        <!-- Export / Import Config -->
-        <div>
-          <p class="text-zinc-400 text-sm mb-4">Exportar / Importar Configuração</p>
-          <div class="grid grid-cols-2 gap-4">
-            <button onclick="exportConfig()" class="py-5 bg-zinc-800 hover:bg-zinc-700 rounded-3xl flex items-center justify-center gap-3 font-medium">⬇ Exportar JSON</button>
-            <label class="py-5 bg-zinc-800 hover:bg-zinc-700 rounded-3xl flex items-center justify-center gap-3 font-medium cursor-pointer">
-              ⬆ Importar JSON
-              <input type="file" id="import-config-input" accept=".json" class="hidden" onchange="importConfig(event)">
-            </label>
-          </div>
-          <p class="text-xs text-zinc-500 mt-2">Guarda URL e chave num ficheiro JSON para restaurar noutro dispositivo.</p>
-        </div>
-
-        <!-- Importar Nota Cifrada -->
-        <div>
-          <p class="text-zinc-400 text-sm mb-4">Importar Nota Cifrada</p>
-          <label class="block border-2 border-dashed border-zinc-700 hover:border-violet-500 rounded-3xl p-10 text-center cursor-pointer">
-            <i class="fas fa-file-upload text-5xl mb-4 text-zinc-400"></i>
-            <p class="font-medium">Selecione um arquivo .anote</p>
-            <input type="file" id="import-anote-input" accept=".anote" class="hidden" onchange="importAnote(event)">
-          </label>
+<!-- FILE UPLOAD -->
+<div class="overlay" id="fileUploadOverlay">
+  <div class="file-modal">
+    <div class="modal-header">
+      <div class="modal-title-area">
+        <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:0.45rem" id="fileModalModeTitle">Anexar Arquivo</div>
+        <div class="tags-input-area" id="fileTagsArea">
+          <select class="tags-select" id="fileTagSelect" onchange="addTagToFile()"><option value="">+ tag</option></select>
         </div>
       </div>
-
-      <button onclick="closeSettings()" class="mt-12 w-full py-4 border border-zinc-700 hover:bg-zinc-800 rounded-3xl font-medium">Fechar</button>
+      <button class="modal-close" onclick="closeFileUpload()">✕</button>
+    </div>
+    <div id="dropZoneWrapper">
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" onchange="handleFileSelect(event)">
+        <div class="drop-icon">📂</div>
+        <div class="drop-label">Arraste ou clique para selecionar</div>
+        <div class="drop-hint">Imagens, PDFs, documentos…</div>
+      </div>
+      <div class="selected-file-info" id="selectedFileInfo">
+        <span class="sel-file-name" id="selFileName"></span>
+        <span class="sel-file-size" id="selFileSize"></span>
+        <button class="sel-clear" onclick="clearSelectedFile()">✕</button>
+      </div>
+    </div>
+    <div class="file-fields">
+      <div><label class="field-label">Nome / Título</label><input class="field-input" type="text" id="fileTitle" placeholder="Nome descritivo…" maxlength="140"></div>
+      <div><label class="field-label">Descrição (opcional)</label><textarea class="field-textarea" id="fileDesc" placeholder="Breve descrição…" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeFileUpload()">Cancelar</button>
+      <button class="btn-primary file-btn" id="fileSaveBtn" onclick="saveFile()">Salvar Arquivo</button>
     </div>
   </div>
+</div>
 
-  <script>
-    // ==================== CONFIGURAÇÃO SUPABASE ====================
-    let supabaseClient = null;
-    let currentUser = null;
-    let currentNotaId = null;
-    let currentFileId = null;
-    let notaCifradaSenha = null;
+<!-- FILE VIEWER -->
+<div class="overlay" id="fileViewerOverlay">
+  <div class="file-viewer-modal">
+    <div class="file-viewer-header">
+      <div class="file-viewer-icon" id="fvIcon">📄</div>
+      <div class="file-viewer-info">
+        <div class="file-viewer-title" id="fvTitle"></div>
+        <div class="file-viewer-meta">
+          <span class="file-ext-badge" id="fvExt"></span>
+          <span class="file-size" id="fvSize"></span>
+          <span class="card-date" id="fvDate"></span>
+        </div>
+        <div class="file-viewer-desc" id="fvDesc"></div>
+        <div class="file-viewer-tags" id="fvTags"></div>
+      </div>
+      <button class="modal-close" onclick="closeFileViewer()">✕</button>
+    </div>
+    <div class="file-preview-area" id="fvPreviewArea"></div>
+    <div class="file-viewer-footer">
+      <button class="btn-secondary" onclick="openEditFile()">✏ Editar</button>
+      <button class="btn-secondary" onclick="closeFileViewer()">Fechar</button>
+      <button class="btn-download" onclick="downloadCurrentFile()">⬇ Baixar</button>
+    </div>
+  </div>
+</div>
 
-    function initSupabase() {
-      const url = localStorage.getItem('supabase_url');
-      const key = localStorage.getItem('supabase_anon');
-      if (url && key) {
-        supabaseClient = Supabase.createClient(url, key);
-        console.log('✅ Supabase conectado via localStorage');
-        loadNotes();
-        loadTags();
-      } else {
-        console.log('⚠️ Supabase ainda não configurado. Use Export/Import ou configure manualmente.');
-      }
-    }
+<!-- PASSWORD -->
+<div class="overlay" id="passOverlay">
+  <div class="pass-modal">
+    <h3 id="passModalTitle">Palavra-passe</h3>
+    <p id="passModalDesc">Informe a palavra-passe para esta nota.</p>
+    <div class="pass-input-wrap">
+      <input class="pass-input" type="password" id="passInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')confirmPass()">
+      <div class="pass-error" id="passError">Palavra-passe incorreta.</div>
+    </div>
+    <div class="pass-modal-actions">
+      <button class="btn-secondary" onclick="cancelPass()">Cancelar</button>
+      <button class="btn-primary" onclick="confirmPass()">Confirmar</button>
+    </div>
+  </div>
+</div>
 
-    // ==================== TEMA ====================
-    function toggleTheme() {
-      document.documentElement.classList.toggle('dark');
-      document.getElementById('theme-btn').innerHTML = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
-    }
+<!-- CONFIG / SUPABASE -->
+<div class="overlay" id="configOverlay">
+  <div class="config-modal">
+    <h3>Supabase &amp; Configurações</h3>
+    <div class="config-field">
+      <label class="config-label">URL do Projeto</label>
+      <input class="config-input" type="text" id="cfgUrl" placeholder="https://xxxx.supabase.co">
+    </div>
+    <div class="config-field">
+      <label class="config-label">Chave Anon</label>
+      <input class="config-input" type="text" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6…">
+      <div class="config-hint">Settings → API no painel Supabase.</div>
+    </div>
+    <div class="config-field">
+      <label class="config-label">Exportar / Importar Configuração</label>
+      <div class="io-row">
+        <button class="btn-secondary" onclick="exportConfig()">⬇ Exportar JSON</button>
+        <button class="btn-secondary" onclick="document.getElementById('importCfgInput').click()">⬆ Importar JSON</button>
+        <input type="file" id="importCfgInput" accept=".json" style="display:none" onchange="importConfig(event)">
+      </div>
+      <div class="config-hint">Guarda URL e chave num ficheiro JSON para restaurar noutro dispositivo.</div>
+    </div>
+    <div class="config-field">
+      <label class="config-label">Importar Nota Cifrada</label>
+      <div class="io-row">
+        <button class="btn-secondary" onclick="document.getElementById('importNoteInput').click()">⬆ Importar .anote</button>
+        <input type="file" id="importNoteInput" accept=".anote,.json" style="display:none" onchange="importNote(event)">
+      </div>
+      <div class="config-hint">Importa uma nota exportada (.anote). O conteúdo permanece cifrado.</div>
+    </div>
+    <div class="config-field">
+      <label class="config-label">Schema SQL</label>
+      <div class="sql-block">
+-- Execute no SQL Editor do Supabase:<br><br>
+create table if not exists notes (<br>
+&nbsp; id uuid default gen_random_uuid() primary key,<br>
+&nbsp; title text not null default '',<br>
+&nbsp; encrypted_content text not null default '',<br>
+&nbsp; tags text[] default '{}',<br>
+&nbsp; created_at timestamptz default now(),<br>
+&nbsp; updated_at timestamptz default now()<br>
+);<br><br>
+create table if not exists tags (<br>
+&nbsp; id serial primary key,<br>
+&nbsp; name text unique not null<br>
+);<br><br>
+create table if not exists files (<br>
+&nbsp; id uuid default gen_random_uuid() primary key,<br>
+&nbsp; title text not null default '',<br>
+&nbsp; description text default '',<br>
+&nbsp; filename text not null,<br>
+&nbsp; mime_type text not null,<br>
+&nbsp; size_bytes bigint default 0,<br>
+&nbsp; data text not null,<br>
+&nbsp; tags text[] default '{}',<br>
+&nbsp; created_at timestamptz default now(),<br>
+&nbsp; updated_at timestamptz default now()<br>
+);
+      </div>
+    </div>
+    <div class="config-actions">
+      <button class="btn-secondary" onclick="closeConfig()">Cancelar</button>
+      <button class="btn-primary" onclick="saveConfig()">Conectar</button>
+    </div>
+  </div>
+</div>
 
-    // ==================== LOGIN ====================
-    function fazerLogin() {
-      const email = document.getElementById('email').value.trim();
-      const senha = document.getElementById('senha').value.trim();
-      if (!email || !senha) return alert('Preencha e-mail e senha');
-      
-      // Login simples (pode ser substituído por supabase.auth se quiser)
-      document.getElementById('login-modal').classList.add('hidden');
-      initSupabase();
-      alert('✅ Login realizado com sucesso!');
-    }
+<div class="toast" id="toast"></div>
 
-    function logout() {
-      if (confirm('Deseja sair?')) location.reload();
-    }
+<script>
+/* ── STATE ── */
+let state={notes:[],files:[],tags:[],filter:'all',accessToken:null,supabase:{url:'',key:''},isConnected:false,editingNoteId:null,isNewNote:false,noteTags:[],isDecrypted:false,pendingPassResolve:null,pendingPassReject:null,editingFileId:null,isNewFile:false,fileTags:[],selectedFile:null,selectedFileB64:null,viewingFileId:null};
 
-    // ==================== MODAIS ====================
-    function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
-    function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+/* ── DARK MODE ── */
+function toggleDark(){document.body.classList.toggle('dark');const d=document.body.classList.contains('dark');localStorage.setItem('dark_mode',d?'1':'0');const b=document.getElementById('darkBtn');b.textContent=d?'☀':'🌙';b.title=d?'Modo claro':'Modo escuro';}
+function applyDark(){if(localStorage.getItem('dark_mode')==='1'){document.body.classList.add('dark');const b=document.getElementById('darkBtn');b.textContent='☀';b.title='Modo claro';}}
 
-    function novaNota() {
-      currentNotaId = null;
-      document.getElementById('nota-modal-title').textContent = 'Nova Nota';
-      document.getElementById('nota-titulo').value = '';
-      document.getElementById('nota-conteudo').value = '';
-      document.getElementById('senha-cifragem').classList.add('hidden');
-      document.getElementById('nota-modal').classList.remove('hidden');
-    }
+/* ── CRYPTO ── */
+const ENC=new TextEncoder(),DEC=new TextDecoder();
+async function deriveKey(pw,salt){const km=await crypto.subtle.importKey('raw',ENC.encode(pw),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:200000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);}
+async function encryptText(plain,pw){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12)),key=await deriveKey(pw,salt),cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,ENC.encode(plain)),out=new Uint8Array(28+cipher.byteLength);out.set(salt,0);out.set(iv,16);out.set(new Uint8Array(cipher),28);return btoa(String.fromCharCode(...out));}
+async function decryptText(b64,pw){const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0)),key=await deriveKey(pw,bytes.slice(0,16)),plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:bytes.slice(16,28)},key,bytes.slice(28));return DEC.decode(plain);}
 
-    function fecharNotaModal() {
-      document.getElementById('nota-modal').classList.add('hidden');
-      currentNotaId = null;
-    }
+/* ── SUPABASE ── */
+function sbH(){return{'Content-Type':'application/json','apikey':state.supabase.key,'Authorization':'Bearer '+state.supabase.key,'Prefer':'return=representation'};}
+async function sbFetch(path,method='GET',body=null){const r=await fetch(`${state.supabase.url}/rest/v1/${path}`,{method,headers:sbH(),body:body?JSON.stringify(body):undefined});if(!r.ok)throw new Error(`SB ${r.status}: ${await r.text()}`);return method==='DELETE'?null:r.json();}
+async function loadFromSupabase(){const[notes,tags,files]=await Promise.all([sbFetch('notes?select=*&order=updated_at.desc'),sbFetch('tags?select=name&order=name.asc'),sbFetch('files?select=*&order=updated_at.desc')]);state.notes=notes.map(n=>({id:n.id,title:n.title,encryptedContent:n.encrypted_content,tags:n.tags||[],createdAt:n.created_at,updatedAt:n.updated_at}));state.tags=tags.map(t=>t.name);state.files=files.map(f=>({id:f.id,title:f.title,description:f.description||'',filename:f.filename,mimeType:f.mime_type,sizeBytes:f.size_bytes,dataB64:f.data,tags:f.tags||[],createdAt:f.created_at,updatedAt:f.updated_at}));setConnected(true);}
+async function saveNoteToSB(note){const p={title:note.title,encrypted_content:note.encryptedContent,tags:note.tags,updated_at:new Date().toISOString()};if(note.id)await sbFetch(`notes?id=eq.${note.id}`,'PATCH',p);else{const r=await sbFetch('notes','POST',p);note.id=r[0].id;}}
+async function deleteNoteFromSB(id){await sbFetch(`notes?id=eq.${id}`,'DELETE');}
+async function saveFileToSB(f){const p={title:f.title,description:f.description,filename:f.filename,mime_type:f.mimeType,size_bytes:f.sizeBytes,data:f.dataB64,tags:f.tags,updated_at:new Date().toISOString()};if(f.id)await sbFetch(`files?id=eq.${f.id}`,'PATCH',p);else{const r=await sbFetch('files','POST',p);f.id=r[0].id;}}
+async function deleteFileFromSB(id){await sbFetch(`files?id=eq.${id}`,'DELETE');}
+async function saveTagToSB(name){try{await sbFetch('tags','POST',{name});}catch(e){}}
+function setConnected(v){state.isConnected=v;document.getElementById('statusDot').className='status-dot '+(v?'connected':'error');document.getElementById('statusText').textContent=v?'OK':'—';}
 
-    function toggleCifragem() {
-      const div = document.getElementById('senha-cifragem');
-      div.classList.toggle('hidden');
-    }
+/* ── CONFIG ── */
+function openConfig(){document.getElementById('configOverlay').classList.add('open');}
+function closeConfig(){document.getElementById('configOverlay').classList.remove('open');}
+async function saveConfig(){closeConfig();showToast('Configurações salvas.','success');}
 
-    function salvarNota() {
-      const titulo = document.getElementById('nota-titulo').value || 'Sem título';
-      let conteudo = document.getElementById('nota-conteudo').value;
-      const senha = document.getElementById('nota-senha').value;
+/* ── EXPORT / IMPORT CONFIG ── */
+function exportConfig(){const d={sb_url:state.supabase.url,sb_key:state.supabase.key};if(!d.sb_url||!d.sb_key){showToast('Configure o Supabase primeiro.','error');return;}dlJSON(d,'arquivo-pessoal-config.json');showToast('Configuração exportada!','success');}
+function importConfig(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!d.sb_url||!d.sb_key)throw new Error('Formato inválido.');document.getElementById('cfgUrl').value=d.sb_url;document.getElementById('cfgKey').value=d.sb_key;showToast('Importado! Clique em Conectar.','success');}catch(err){showToast('Erro: '+err.message,'error');}ev.target.value='';};r.readAsText(file);}
 
-      if (senha) {
-        // Cifrar com CryptoJS
-        conteudo = CryptoJS.AES.encrypt(conteudo, senha).toString();
-        notaCifradaSenha = senha;
-      }
+/* ── EXPORT / IMPORT NOTE ── */
+function exportCurrentNote(){const note=state.notes.find(n=>n.id===state.editingNoteId);if(!note)return;_exportNote(note);}
+function exportNoteById(id){const note=state.notes.find(n=>n.id===id);if(!note)return;_exportNote(note);}
+function _exportNote(note){const p={_type:'arquivo-pessoal-note',_version:1,title:note.title,encryptedContent:note.encryptedContent,tags:note.tags,createdAt:note.createdAt,exportedAt:new Date().toISOString()};const slug=(note.title||'nota').replace(/[^a-z0-9]/gi,'_').toLowerCase().slice(0,40);dlJSON(p,`${slug}.anote`);showToast('Nota exportada (.anote)!','success');}
+function importNote(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(d._type!=='arquivo-pessoal-note'||!d.encryptedContent)throw new Error('Ficheiro .anote inválido.');const note={id:null,title:d.title||'Nota importada',encryptedContent:d.encryptedContent,tags:d.tags||[],createdAt:d.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};state.notes.unshift(note);persistNote(note).then(()=>{renderAll();showToast('Nota importada!','success');});}catch(err){showToast('Erro: '+err.message,'error');}ev.target.value='';};r.readAsText(file);}
+function dlJSON(obj,name){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 
-      if (!supabaseClient) return alert('Configure o Supabase primeiro (Importe o JSON de configuração)');
+/* ── TAGS ── */
+function addTag(){const input=document.getElementById('newTagInput'),name=input.value.trim().toLowerCase();if(!name)return;if(state.tags.includes(name)){showToast('Tag já existe.','info');return;}state.tags.push(name);state.tags.sort();input.value='';if(state.isConnected)saveTagToSB(name);renderSidebar();}
+function filterByTag(el,tag){document.querySelectorAll('.tag-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');state.filter=tag;document.getElementById('filterLabel').textContent=tag==='all'?'Todas':`Tag: ${tag}`;renderContent();}
 
-      const payload = {
-        title: titulo,
-        encrypted_content: conteudo,
-        tags: [] // pode expandir depois
-      };
+/* ── RENDER ── */
+function renderAll(){renderSidebar();renderContent();}
+function renderSidebar(){const list=document.getElementById('tagList');document.getElementById('countAll').textContent=state.notes.length+state.files.length;list.querySelectorAll('[data-tag]:not([data-tag="all"])').forEach(e=>e.remove());state.tags.forEach(tag=>{const count=[...state.notes,...state.files].filter(i=>i.tags.includes(tag)).length;const div=document.createElement('div');div.className='tag-item'+(state.filter===tag?' active':'');div.dataset.tag=tag;div.onclick=()=>filterByTag(div,tag);div.innerHTML=`<span>🏷 ${tag}</span><span class="tag-count">${count}</span>`;list.appendChild(div);});}
+function renderContent(){const grid=document.getElementById('contentGrid'),search=document.getElementById('searchInput').value.toLowerCase();let notes=state.notes,files=state.files;if(state.filter!=='all'){notes=notes.filter(n=>n.tags.includes(state.filter));files=files.filter(f=>f.tags.includes(state.filter));}if(search){notes=notes.filter(n=>n.title.toLowerCase().includes(search)||n.tags.some(t=>t.includes(search)));files=files.filter(f=>f.title.toLowerCase().includes(search)||f.filename.toLowerCase().includes(search)||(f.description||'').toLowerCase().includes(search)||f.tags.some(t=>t.includes(search)));}if(!notes.length&&!files.length){grid.innerHTML=`<div class="empty-state"><h3>Nenhum item encontrado.</h3><p>${(state.notes.length+state.files.length)===0?'Use ✏ e 📎 para começar.':'Tente outro filtro ou busca.'}</p></div>`;return;}let html='';if(notes.length){html+=`<div class="type-divider">✏ Anotações <span style="opacity:0.45">(${notes.length})</span></div>`;html+=notes.map(noteCardHTML).join('');}if(files.length){html+=`<div class="type-divider">📎 Arquivos <span style="opacity:0.45">(${files.length})</span></div>`;html+=files.map(fileCardHTML).join('');}grid.innerHTML=html;}
+function noteCardHTML(n){const locked=!!n.encryptedContent,preview=locked?'⬛⬛⬛⬛⬛ ⬛⬛⬛ ⬛⬛⬛⬛⬛⬛ ⬛⬛':(n.plainText||'').slice(0,120),tags=n.tags.map(t=>`<span class="tag-chip">${t}</span>`).join(''),date=n.updatedAt?new Date(n.updatedAt).toLocaleDateString('pt-BR'):'';return`<div class="note-card ${locked?'locked-card':'unlocked-card'}" onclick="openNote('${n.id}')"><div class="card-actions" onclick="event.stopPropagation()"><button class="icon-btn" onclick="exportNoteById('${n.id}')" title="Exportar">⬇</button><button class="icon-btn delete" onclick="deleteNote('${n.id}')" title="Apagar">🗑</button></div><div class="card-header"><div class="card-title">${esc(n.title||'Sem título')}</div><span class="card-badge">${locked?'🔒':'🔓'}</span></div><div class="note-preview ${locked?'encrypted-preview':''}">${esc(preview)}</div><div class="card-footer"><div class="card-tags">${tags}</div><span class="card-date">${date}</span></div></div>`;}
+function fileCardHTML(f){const ext=f.filename.includes('.')?f.filename.split('.').pop().toUpperCase():'ARQ',icon=fileIcon(f.mimeType),size=formatSize(f.sizeBytes),tags=f.tags.map(t=>`<span class="tag-chip">${t}</span>`).join(''),date=f.updatedAt?new Date(f.updatedAt).toLocaleDateString('pt-BR'):'';return`<div class="file-card" onclick="openFileViewer('${f.id}')"><div class="card-actions" onclick="event.stopPropagation()"><button class="icon-btn download" onclick="downloadFile('${f.id}')" title="Baixar">⬇</button><button class="icon-btn delete" onclick="deleteFile('${f.id}')" title="Apagar">🗑</button></div><div class="card-header"><div class="card-title">${esc(f.title||f.filename)}</div><span class="card-badge">${icon}</span></div><div class="file-meta"><span class="file-ext-badge">${ext}</span><span class="file-size">${size}</span></div>${f.description?`<div class="file-desc">${esc(f.description)}</div>`:''}<div class="card-footer"><div class="card-tags">${tags}</div><span class="card-date">${date}</span></div></div>`;}
+function fileIcon(m){if(!m)return'📄';if(m.startsWith('image/'))return'🖼';if(m==='application/pdf')return'📕';if(m.includes('spreadsheet')||m.includes('excel')||m.includes('csv'))return'📊';if(m.includes('word')||m.includes('document'))return'📝';if(m.includes('zip')||m.includes('rar')||m.includes('7z')||m.includes('tar'))return'📦';if(m.startsWith('video/'))return'🎬';if(m.startsWith('audio/'))return'🎵';if(m.startsWith('text/')||m.includes('json')||m.includes('javascript')||m.includes('html'))return'💻';return'📄';}
+function formatSize(b){if(!b)return'—';if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-      if (currentNotaId) {
-        supabaseClient.from('notes').update(payload).eq('id', currentNotaId).then(() => { loadNotes(); fecharNotaModal(); });
-      } else {
-        supabaseClient.from('notes').insert(payload).then(() => { loadNotes(); fecharNotaModal(); });
-      }
-    }
+/* ── NOTE EDITOR ── */
+function openNewNote(){state.editingNoteId=null;state.isNewNote=true;state.isDecrypted=false;state.noteTags=[];document.getElementById('noteTitleInput').value='';document.getElementById('noteTextarea').value='';document.getElementById('noteTextarea').disabled=false;updateCryptoBar('new');populateNoteTagSelect();renderNoteTags();document.getElementById('editorHint').textContent='Nova nota — será cifrada ao salvar.';document.getElementById('editorOverlay').classList.add('open');}
+function openNote(id){const note=state.notes.find(n=>n.id===id);if(!note)return;state.editingNoteId=id;state.isNewNote=false;state.isDecrypted=false;state.noteTags=[...note.tags];document.getElementById('noteTitleInput').value=note.title;document.getElementById('noteTextarea').value='';document.getElementById('noteTextarea').disabled=true;updateCryptoBar('locked');populateNoteTagSelect();renderNoteTags();document.getElementById('editorHint').textContent=`ID: ${id.slice(0,8)}…`;document.getElementById('editorOverlay').classList.add('open');}
+function closeEditor(){state.isDecrypted=false;document.getElementById('editorOverlay').classList.remove('open');document.getElementById('noteTextarea').value='';document.getElementById('noteTextarea').disabled=true;}
+function updateCryptoBar(mode){const bar=document.getElementById('cryptoBar'),st=document.getElementById('cryptoStatus'),txt=document.getElementById('cryptoStatusText'),bd=document.getElementById('btnDecrypt'),be=document.getElementById('btnEncrypt'),ta=document.getElementById('noteTextarea'),bex=document.getElementById('btnExportNote');if(mode==='new'){bar.style.display='none';ta.disabled=false;}else if(mode==='locked'){bar.style.display='flex';st.className='crypto-status locked';txt.textContent='Nota cifrada — Decifrar para editar.';bd.style.display='';be.style.display='none';bex.style.display='';ta.disabled=true;}else if(mode==='unlocked'){bar.style.display='flex';st.className='crypto-status unlocked';txt.textContent='Nota decifrada — editando.';bd.style.display='none';be.style.display='';bex.style.display='';ta.disabled=false;}}
 
-    function novaTag() {
-      document.getElementById('tag-modal').classList.remove('hidden');
-    }
+/* ── PASSWORD ── */
+function askPassword(mode){document.getElementById('passError').classList.remove('visible');document.getElementById('passInput').value='';document.getElementById('passModalTitle').textContent=mode==='create'?'Criar Palavra-passe':'Decifrar Nota';document.getElementById('passModalDesc').textContent=mode==='create'?'Defina uma palavra-passe para cifrar esta nota. Não a perca!':'Informe a palavra-passe desta nota.';document.getElementById('passOverlay').classList.add('open');setTimeout(()=>document.getElementById('passInput').focus(),80);return new Promise((res,rej)=>{state.pendingPassResolve=res;state.pendingPassReject=rej;});}
+function confirmPass(){const v=document.getElementById('passInput').value;if(!v){document.getElementById('passError').textContent='Informe uma palavra-passe.';document.getElementById('passError').classList.add('visible');return;}document.getElementById('passOverlay').classList.remove('open');state.pendingPassResolve&&state.pendingPassResolve(v);}
+function cancelPass(){document.getElementById('passOverlay').classList.remove('open');state.pendingPassReject&&state.pendingPassReject(new Error('cancelled'));}
+async function requestDecrypt(){const note=state.notes.find(n=>n.id===state.editingNoteId);if(!note)return;try{const pass=await askPassword('decrypt'),plain=await decryptText(note.encryptedContent,pass);note._pass=pass;document.getElementById('noteTextarea').value=plain;state.isDecrypted=true;updateCryptoBar('unlocked');}catch(e){if(e.message==='cancelled')return;document.getElementById('passError').textContent='Palavra-passe incorreta.';document.getElementById('passError').classList.add('visible');document.getElementById('passOverlay').classList.add('open');setTimeout(()=>document.getElementById('passInput').focus(),80);}}
+async function encryptAndLock(){const note=state.notes.find(n=>n.id===state.editingNoteId);if(!note||!note._pass)return;note.encryptedContent=await encryptText(document.getElementById('noteTextarea').value,note._pass);delete note._pass;state.isDecrypted=false;document.getElementById('noteTextarea').value='';updateCryptoBar('locked');showToast('Nota cifrada.','success');await persistNote(note);renderAll();}
 
-    function fecharTagModal() {
-      document.getElementById('tag-modal').classList.add('hidden');
-    }
+/* ── SAVE NOTE ── */
+async function saveNote(){const title=document.getElementById('noteTitleInput').value.trim(),text=document.getElementById('noteTextarea').value;if(!title){showToast('Informe um título.','error');return;}let note;if(state.isNewNote){let pass;try{pass=await askPassword('create');}catch(e){return;}const enc_=await encryptText(text||'',pass);note={id:null,title,encryptedContent:enc_,tags:[...state.noteTags],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};state.notes.unshift(note);}else{note=state.notes.find(n=>n.id===state.editingNoteId);note.title=title;note.tags=[...state.noteTags];if(state.isDecrypted){if(!note._pass){try{note._pass=await askPassword('create');}catch(e){return;}}note.encryptedContent=await encryptText(text,note._pass);delete note._pass;state.isDecrypted=false;}note.updatedAt=new Date().toISOString();}await persistNote(note);closeEditor();renderAll();showToast('Nota salva!','success');}
+async function persistNote(note){if(state.isConnected){try{await saveNoteToSB(note);}catch(e){showToast('Erro SB: '+e.message,'error');}}else localStorage.setItem('notes_local',JSON.stringify(state.notes));}
+async function deleteNote(id){if(!confirm('Apagar esta nota?'))return;state.notes=state.notes.filter(n=>n.id!==id);if(state.isConnected){try{await deleteNoteFromSB(id);}catch(e){showToast('Erro SB: '+e.message,'error');}}else localStorage.setItem('notes_local',JSON.stringify(state.notes));renderAll();showToast('Nota apagada.','info');}
 
-    function salvarNovaTag() {
-      const nome = document.getElementById('nova-tag-nome').value.trim();
-      if (!nome) return;
-      if (!supabaseClient) return alert('Supabase não conectado');
-      supabaseClient.from('tags').insert({ name: nome }).then(() => {
-        fecharTagModal();
-        loadTags();
-      });
-    }
+/* ── NOTE TAGS UI ── */
+function populateNoteTagSelect(){const sel=document.getElementById('noteTagSelect');sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o);});}
+function addTagToNote(){const sel=document.getElementById('noteTagSelect'),val=sel.value;if(!val||state.noteTags.includes(val)){sel.value='';return;}state.noteTags.push(val);sel.value='';renderNoteTags();}
+function removeTagFromNote(tag){state.noteTags=state.noteTags.filter(t=>t!==tag);renderNoteTags();}
+function renderNoteTags(){const area=document.getElementById('noteTagsArea');area.innerHTML='';state.noteTags.forEach(t=>{const b=document.createElement('button');b.className='tag-chip-remove';b.innerHTML=`${t} <span style="opacity:0.5">✕</span>`;b.onclick=()=>removeTagFromNote(t);area.appendChild(b);});const sel=document.createElement('select');sel.className='tags-select';sel.id='noteTagSelect';sel.onchange=addTagToNote;sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o);});area.appendChild(sel);}
 
-    function anexarArquivo() {
-      document.getElementById('anexo-modal').classList.remove('hidden');
-    }
+/* ── FILE UPLOAD ── */
+function openFileUpload(existingId){state.editingFileId=existingId||null;state.isNewFile=!existingId;state.fileTags=[];state.selectedFile=null;state.selectedFileB64=null;document.getElementById('fileModalModeTitle').textContent=existingId?'Editar Informações':'Anexar Arquivo';document.getElementById('dropZoneWrapper').style.display=existingId?'none':'';document.getElementById('fileSaveBtn').textContent=existingId?'Salvar Alterações':'Salvar Arquivo';document.getElementById('selectedFileInfo').classList.remove('visible');document.getElementById('fileInput').value='';if(existingId){const f=state.files.find(x=>x.id===existingId);document.getElementById('fileTitle').value=f.title;document.getElementById('fileDesc').value=f.description;state.fileTags=[...f.tags];}else{document.getElementById('fileTitle').value='';document.getElementById('fileDesc').value='';}populateFileTagSelect();renderFileTags();document.getElementById('fileUploadOverlay').classList.add('open');}
+function closeFileUpload(){document.getElementById('fileUploadOverlay').classList.remove('open');state.selectedFile=null;state.selectedFileB64=null;}
+function handleFileSelect(ev){const file=ev.target.files[0];if(!file)return;if(file.size>8*1024*1024){showToast('Arquivo muito grande (máx. 8 MB).','error');return;}state.selectedFile=file;if(!document.getElementById('fileTitle').value)document.getElementById('fileTitle').value=file.name.replace(/\.[^.]+$/,'');document.getElementById('selFileName').textContent=file.name;document.getElementById('selFileSize').textContent=formatSize(file.size);document.getElementById('selectedFileInfo').classList.add('visible');const reader=new FileReader();reader.onload=e=>{state.selectedFileB64=e.target.result.split(',')[1];};reader.readAsDataURL(file);}
+function clearSelectedFile(){state.selectedFile=null;state.selectedFileB64=null;document.getElementById('fileInput').value='';document.getElementById('selectedFileInfo').classList.remove('visible');}
+document.addEventListener('DOMContentLoaded',()=>{const dz=document.getElementById('dropZone');dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const file=e.dataTransfer.files[0];if(file){const dt=new DataTransfer();dt.items.add(file);document.getElementById('fileInput').files=dt.files;handleFileSelect({target:{files:[file]}});}});});
+async function saveFile(){const title=document.getElementById('fileTitle').value.trim(),desc=document.getElementById('fileDesc').value.trim();if(!title){showToast('Informe um título.','error');return;}if(state.isNewFile){if(!state.selectedFile||!state.selectedFileB64){showToast('Selecione um arquivo.','error');return;}const file={id:null,title,description:desc,filename:state.selectedFile.name,mimeType:state.selectedFile.type||'application/octet-stream',sizeBytes:state.selectedFile.size,dataB64:state.selectedFileB64,tags:[...state.fileTags],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};state.files.unshift(file);await persistFile(file);}else{const file=state.files.find(f=>f.id===state.editingFileId);file.title=title;file.description=desc;file.tags=[...state.fileTags];file.updatedAt=new Date().toISOString();await persistFile(file);}closeFileUpload();if(state.viewingFileId)closeFileViewer();renderAll();showToast('Arquivo salvo!','success');}
+async function persistFile(f){if(state.isConnected){try{await saveFileToSB(f);}catch(e){showToast('Erro SB: '+e.message,'error');}}else localStorage.setItem('files_local',JSON.stringify(state.files));}
+async function deleteFile(id){if(!confirm('Apagar este arquivo?'))return;state.files=state.files.filter(f=>f.id!==id);if(state.isConnected){try{await deleteFileFromSB(id);}catch(e){showToast('Erro SB: '+e.message,'error');}}else localStorage.setItem('files_local',JSON.stringify(state.files));renderAll();showToast('Arquivo apagado.','info');}
+function downloadFile(id){const f=state.files.find(x=>x.id===id);if(!f)return;const a=document.createElement('a');a.href=`data:${f.mimeType};base64,${f.dataB64}`;a.download=f.filename;a.click();}
 
-    function fecharAnexoModal() {
-      document.getElementById('anexo-modal').classList.add('hidden');
-    }
+/* ── FILE VIEWER ── */
+function openFileViewer(id){const f=state.files.find(x=>x.id===id);if(!f)return;state.viewingFileId=id;document.getElementById('fvIcon').textContent=fileIcon(f.mimeType);document.getElementById('fvTitle').textContent=f.title||f.filename;document.getElementById('fvExt').textContent=f.filename.includes('.')?f.filename.split('.').pop().toUpperCase():'ARQ';document.getElementById('fvSize').textContent=formatSize(f.sizeBytes);document.getElementById('fvDate').textContent=f.updatedAt?new Date(f.updatedAt).toLocaleDateString('pt-BR'):'';document.getElementById('fvDesc').textContent=f.description||'';document.getElementById('fvDesc').style.display=f.description?'':'none';document.getElementById('fvTags').innerHTML=f.tags.map(t=>`<span class="tag-chip">${t}</span>`).join('');const area=document.getElementById('fvPreviewArea');area.innerHTML='';const dataUrl=`data:${f.mimeType};base64,${f.dataB64}`;if(f.mimeType.startsWith('image/')){const img=document.createElement('img');img.className='preview-image';img.src=dataUrl;img.alt=f.filename;area.appendChild(img);}else if(f.mimeType==='application/pdf'){const iframe=document.createElement('iframe');iframe.className='preview-pdf-frame';iframe.src=dataUrl;area.appendChild(iframe);}else if(f.mimeType.startsWith('text/')||f.mimeType.includes('json')||f.mimeType.includes('xml')){try{const bytes=Uint8Array.from(atob(f.dataB64),c=>c.charCodeAt(0)),text=new TextDecoder().decode(bytes),div=document.createElement('div');div.className='preview-text-block';div.textContent=text;area.appendChild(div);}catch(e){area.innerHTML=genericPreview(f);}}else area.innerHTML=genericPreview(f);document.getElementById('fileViewerOverlay').classList.add('open');}
+function genericPreview(f){return`<div class="preview-generic"><div class="big-icon">${fileIcon(f.mimeType)}</div><p>${esc(f.filename)}</p><p style="margin-top:0.35rem;font-size:0.72rem">${formatSize(f.sizeBytes)} · ${f.mimeType}</p></div>`;}
+function closeFileViewer(){document.getElementById('fileViewerOverlay').classList.remove('open');state.viewingFileId=null;}
+function downloadCurrentFile(){if(state.viewingFileId)downloadFile(state.viewingFileId);}
+function openEditFile(){closeFileViewer();openFileUpload(state.viewingFileId);}
 
-    function handleDrop(e) {
-      e.preventDefault();
-      handleFile(e.dataTransfer.files[0]);
-    }
+/* ── FILE TAGS UI ── */
+function populateFileTagSelect(){const sel=document.getElementById('fileTagSelect');sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o);});}
+function addTagToFile(){const sel=document.getElementById('fileTagSelect'),val=sel.value;if(!val||state.fileTags.includes(val)){sel.value='';return;}state.fileTags.push(val);sel.value='';renderFileTags();}
+function removeTagFromFile(tag){state.fileTags=state.fileTags.filter(t=>t!==tag);renderFileTags();}
+function renderFileTags(){const area=document.getElementById('fileTagsArea');area.innerHTML='';state.fileTags.forEach(t=>{const b=document.createElement('button');b.className='tag-chip-remove';b.innerHTML=`${t} <span style="opacity:0.5">✕</span>`;b.onclick=()=>removeTagFromFile(t);area.appendChild(b);});const sel=document.createElement('select');sel.className='tags-select';sel.id='fileTagSelect';sel.onchange=addTagToFile;sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o);});area.appendChild(sel);}
 
-    function handleFileSelect(e) {
-      if (e.target.files.length > 0) handleFile(e.target.files[0]);
-    }
+/* ── TOAST ── */
+let toastTimer;
+function showToast(msg,type='info'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type}`;void t.offsetWidth;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);}
 
-    function handleFile(file) {
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        document.getElementById('anexo-titulo').value = file.name;
-        window.tempFile = {
-          filename: file.name,
-          mime_type: file.type,
-          size_bytes: file.size,
-          data: ev.target.result // base64
-        };
-      };
-      reader.readAsDataURL(file);
-    }
+/* ── PWA ── */
+function setupPWA(){
+  const manifest={name:'Notas Pessoais',short_name:'Notas',description:'Notas Pessoais',start_url:'./',display:'standalone',orientation:'portrait-primary',background_color:'#1a1410',theme_color:'#1a1410',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1410'/%3E%3Ctext y='.9em' font-size='85'%3E%F0%9F%93%9C%3C/text%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'},{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1410'/%3E%3Ctext y='.9em' font-size='85'%3E%F0%9F%93%9C%3C/text%3E%3C/svg%3E",sizes:'512x512',type:'image/svg+xml'}]};
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  document.getElementById('pwaManifest').href=URL.createObjectURL(blob);
+  if('serviceWorker' in navigator){
+    const sw=`const C='arquivo-v2';self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(['./','/index.html'])).catch(()=>{}));});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>clients.claim()));});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(resp=>{if(resp.ok&&e.request.url.includes('fonts')){const cl=resp.clone();caches.open(C).then(c=>c.put(e.request,cl));}return resp;}).catch(()=>caches.match('./'))));});`;
+    const swBlob=new Blob([sw],{type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:'./'}).catch(()=>{});
+  }
+}
 
-    function salvarAnexo() {
-      if (!window.tempFile) return alert('Selecione um arquivo');
-      if (!supabaseClient) return alert('Supabase não conectado');
-      
-      const titulo = document.getElementById('anexo-titulo').value || window.tempFile.filename;
-      const descricao = document.getElementById('anexo-descricao').value;
+/* ── SUPABASE CONFIG (embutido) ── */
+const SB_URL='https://gpytubxtvfvsmmynywru.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdweXR1Ynh0dmZ2c21teW55d3J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjI1NDUsImV4cCI6MjA5MDc5ODU0NX0.zLEY1ZzKddrffjlo6rtYnzc7nfLeJeTk0rC5PxtPFNo';
 
-      supabaseClient.from('files').insert({
-        title: titulo,
-        description: descricao,
-        filename: window.tempFile.filename,
-        mime_type: window.tempFile.mime_type,
-        size_bytes: window.tempFile.size_bytes,
-        data: window.tempFile.data
-      }).then(() => {
-        fecharAnexoModal();
-        alert('Arquivo salvo com sucesso!');
-        window.tempFile = null;
-      });
-    }
+/* ── AUTH ── */
+async function sbAuthH(token){return{'Content-Type':'application/json','apikey':SB_ANON,'Authorization':'Bearer '+(token||SB_ANON)};}
+async function doLogin(email,password){
+  const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_ANON},body:JSON.stringify({email,password})});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error_description||d.msg||'Erro no login');
+  return d;
+}
+async function doRefreshToken(refresh_token){
+  const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_ANON},body:JSON.stringify({refresh_token})});
+  const d=await r.json();
+  if(!r.ok)return null;
+  return d;
+}
+function saveSession(session){
+  localStorage.setItem('np_access_token',session.access_token);
+  localStorage.setItem('np_refresh_token',session.refresh_token);
+  localStorage.setItem('np_expires_at',Date.now()+session.expires_in*1000);
+  state.accessToken=session.access_token;
+}
+async function getValidToken(){
+  const exp=parseInt(localStorage.getItem('np_expires_at')||'0');
+  if(state.accessToken&&Date.now()<exp-60000)return state.accessToken;
+  const rt=localStorage.getItem('np_refresh_token');
+  if(!rt)return null;
+  const s=await doRefreshToken(rt);
+  if(!s)return null;
+  saveSession(s);
+  return s.access_token;
+}
+async function logout(){
+  localStorage.removeItem('np_access_token');
+  localStorage.removeItem('np_refresh_token');
+  localStorage.removeItem('np_expires_at');
+  state.accessToken=null;
+  state.isConnected=false;
+  showLoginScreen();
+}
+function showLoginScreen(){
+  document.getElementById('loginOverlay').style.display='flex';
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginEmail').value='';
+  document.getElementById('loginPassword').value='';
+  document.getElementById('loginError').textContent='';
+  setTimeout(()=>document.getElementById('loginEmail').focus(),80);
+}
+function showApp(){
+  document.getElementById('loginOverlay').style.display='none';
+  document.getElementById('appShell').style.display='';
+}
+async function handleLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPassword').value;
+  const err=document.getElementById('loginError');
+  const btn=document.getElementById('loginBtn');
+  if(!email||!pass){err.textContent='Preencha e-mail e senha.';return;}
+  btn.disabled=true;btn.textContent='Entrando…';err.textContent='';
+  try{
+    const s=await doLogin(email,pass);
+    saveSession(s);
+    showApp();
+    state.supabase={url:SB_URL,key:SB_ANON};
+    await loadFromSupabase();
+    renderAll();
+    showToast('Bem-vindo!','success');
+  }catch(e){
+    err.textContent=e.message;
+  }finally{
+    btn.disabled=false;btn.textContent='Entrar';
+  }
+}
 
-    // ==================== DECIFRAR NOTA ====================
-    function abrirSenhaModal(id) {
-      currentNotaId = id;
-      document.getElementById('senha-modal').classList.remove('hidden');
-      document.getElementById('erro-senha').classList.add('hidden');
-    }
+/* ── SOBRESCREVE sbH para usar token de sessão ── */
+function sbH(){
+  return{'Content-Type':'application/json','apikey':SB_ANON,'Authorization':'Bearer '+(state.accessToken||SB_ANON),'Prefer':'return=representation'};
+}
 
-    function fecharSenhaModal() {
-      document.getElementById('senha-modal').classList.add('hidden');
-    }
+/* ── INIT ── */
+async function init(){
+  applyDark();
+  setupPWA();
+  state.supabase={url:SB_URL,key:SB_ANON};
+  try{const n=localStorage.getItem('notes_local');if(n)state.notes=JSON.parse(n);}catch(e){}
+  try{const f=localStorage.getItem('files_local');if(f)state.files=JSON.parse(f);}catch(e){}
+  // Verifica sessão salva
+  const token=await getValidToken();
+  if(token){
+    state.accessToken=token;
+    showApp();
+    try{await loadFromSupabase();renderAll();showToast('Conectado!','success');}catch(e){showToast('Modo local.','info');renderAll();}
+  } else {
+    showLoginScreen();
+    if(!state.tags.length)state.tags=['pessoal','trabalho','ideias','importante'];
+  }
+}
 
-    function decifrarNota() {
-      const senha = document.getElementById('senha-decifrar').value;
-      if (!senha) return;
+['editorOverlay','fileUploadOverlay','fileViewerOverlay','configOverlay','passOverlay'].forEach(id=>{document.getElementById(id).addEventListener('click',e=>{if(e.target!==e.currentTarget)return;if(id==='editorOverlay')closeEditor();else if(id==='fileUploadOverlay')closeFileUpload();else if(id==='fileViewerOverlay')closeFileViewer();else if(id==='configOverlay')closeConfig();else if(id==='passOverlay')cancelPass();});});
 
-      supabaseClient.from('notes').select('*').eq('id', currentNotaId).single().then(({ data }) => {
-        try {
-          const bytes = CryptoJS.AES.decrypt(data.encrypted_content, senha);
-          const conteudoOriginal = bytes.toString(CryptoJS.enc.Utf8);
-          if (!conteudoOriginal) throw new Error();
-          alert('✅ Nota decifrada:\n\n' + conteudoOriginal);
-          fecharSenhaModal();
-        } catch(e) {
-          document.getElementById('erro-senha').classList.remove('hidden');
-        }
-      });
-    }
+init();
+</script>
 
-    // ==================== CARREGAR DADOS ====================
-    async function loadNotes() {
-      if (!supabaseClient) return;
-      const { data } = await supabaseClient.from('notes').select('*').order('created_at', { ascending: false });
-      const grid = document.getElementById('notes-grid');
-      grid.innerHTML = '';
-
-      if (!data || data.length === 0) {
-        document.getElementById('empty-state').classList.remove('hidden');
-        return;
-      }
-      document.getElementById('empty-state').classList.add('hidden');
-
-      data.forEach(note => {
-        const isCifrada = note.encrypted_content.startsWith('U2FsdGVkX'); // sinal de CryptoJS
-        const card = document.createElement('div');
-        card.className = `note-card bg-zinc-900 border border-zinc-800 rounded-3xl p-6 cursor-pointer`;
-        card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <h4 class="font-semibold text-lg">${note.title || 'Sem título'}</h4>
-            ${isCifrada ? `<span class="text-amber-400 text-sm">🔒 cifrada</span>` : ''}
-          </div>
-          <p class="text-zinc-400 text-sm mt-2 line-clamp-3">${isCifrada ? 'Conteúdo cifrado' : note.encrypted_content.substring(0, 120)}</p>
-          <div class="flex justify-end gap-2 mt-6">
-            <button onclick="event.stopImmediatePropagation(); abrirSenhaModal('${note.id}');" class="text-xs px-4 py-2 bg-zinc-800 rounded-2xl hover:bg-zinc-700">Abrir</button>
-          </div>
-        `;
-        card.onclick = () => abrirSenhaModal(note.id);
-        grid.appendChild(card);
-      });
-    }
-
-    async function loadTags() {
-      if (!supabaseClient) return;
-      const { data } = await supabaseClient.from('tags').select('*');
-      const container = document.getElementById('tag-list');
-      container.innerHTML = `<div onclick="showAllNotes()" class="flex items-center gap-2 px-4 py-3 bg-zinc-800 rounded-3xl cursor-pointer"><span class="text-xl">📋</span><span>Todas</span></div>`;
-      data.forEach(tag => {
-        const el = document.createElement('div');
-        el.className = 'flex items-center gap-2 px-4 py-3 hover:bg-zinc-800 rounded-3xl cursor-pointer';
-        el.innerHTML = `<span class="text-xl">🏷️</span><span>${tag.name}</span>`;
-        container.appendChild(el);
-      });
-    }
-
-    function showAllNotes() {
-      loadNotes();
-    }
-
-    function filtrarNotas() {
-      // Implementação simples – pode ser expandida com busca real no Supabase
-      loadNotes();
-    }
-
-    // ==================== EXPORT / IMPORT ====================
-    function exportConfig() {
-      const config = {
-        supabase_url: localStorage.getItem('supabase_url'),
-        supabase_anon: localStorage.getItem('supabase_anon')
-      };
-      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'notas-config.json';
-      a.click();
-    }
-
-    function importConfig(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        try {
-          const config = JSON.parse(ev.target.result);
-          if (config.supabase_url && config.supabase_anon) {
-            localStorage.setItem('supabase_url', config.supabase_url);
-            localStorage.setItem('supabase_anon', config.supabase_anon);
-            alert('✅ Configuração importada com sucesso!');
-            initSupabase();
-          }
-        } catch(err) { alert('Arquivo inválido'); }
-      };
-      reader.readAsText(file);
-    }
-
-    function importAnote(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      alert('✅ Nota .anote importada (conteúdo permanece cifrado).\n\nImplemente a lógica de upload para Supabase se quiser.');
-      // Aqui você pode adicionar a lógica completa de importação .anote
-    }
-
-    function toggleMobileMenu() {
-      alert('Menu mobile aberto (expanda conforme sua necessidade)');
-    }
-
-    // ==================== DOWNLOAD ARQUIVO ====================
-    function downloadFileAtual() {
-      alert('Download iniciado (implemente o blob se quiser)');
-    }
-
-    function fecharViewFileModal() {
-      document.getElementById('view-file-modal').classList.add('hidden');
-    }
-
-    // ==================== INICIALIZAÇÃO ====================
-    window.onload = function() {
-      document.getElementById('login-modal').classList.remove('hidden');
-      // Tailwind config
-      tailwind.config = { content: [] };
-    };
-  </script>
-</body>
+</div><!-- #appShell --></body>
 </html>
