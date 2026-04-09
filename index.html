@@ -12,45 +12,41 @@
 <link rel="manifest" id="pwaManifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Special+Elite&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<!-- Quill editor -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <style>
-:root{--paper:#f5f0e8;--paper-dark:#ede6d6;--card-bg:#ffffff;--ink:#1a1410;--ink-light:#4a3f35;--ink-faint:#8a7a6a;--accent:#8b3a1a;--accent-soft:#c4673a;--locked:#3a5a8b;--locked-soft:#5a7ab0;--file-color:#2d6b4a;--file-soft:#4a9a6e;--fav-color:#b8860b;--border:#c8b89a;--shadow:rgba(26,20,16,0.12);--tag-bg:#e8dcc8;--header-bg:#1a1410;--line-color:rgba(139,90,60,0.07);--search-bg:#ffffff;--modal-bg:#f5f0e8;}
-body.dark{--paper:#1c1814;--paper-dark:#242018;--card-bg:#2a2420;--ink:#e8e0d0;--ink-light:#c4b89a;--ink-faint:#7a6a5a;--accent:#c4673a;--accent-soft:#e07a4a;--locked:#5a7ab0;--locked-soft:#7a9ad0;--file-color:#4a9a6e;--file-soft:#6abd8e;--fav-color:#d4a017;--border:#3a3028;--shadow:rgba(0,0,0,0.35);--tag-bg:#302820;--header-bg:#0e0c0a;--line-color:rgba(200,160,100,0.04);--search-bg:#2a2420;--modal-bg:#1e1a16;}
+:root{--paper:#f5f0e8;--paper-dark:#ede6d6;--card-bg:#ffffff;--ink:#1a1410;--ink-light:#4a3f35;--ink-faint:#8a7a6a;--accent:#8b3a1a;--accent-soft:#c4673a;--locked:#3a5a8b;--locked-soft:#5a7ab0;--file-color:#2d6b4a;--file-soft:#4a9a6e;--fav-color:#b8860b;--border:#c8b89a;--shadow:rgba(26,20,16,0.12);--tag-bg:#e8dcc8;--header-bg:#1a1410;--line-color:rgba(139,90,60,0.07);--search-bg:#fff;--modal-bg:#f5f0e8;}
+body.dark{--paper:#1c1814;--paper-dark:#242018;--card-bg:#2a2420;--ink:#e8e0d0;--ink-light:#c4b89a;--ink-faint:#7a6a5a;--accent:#c4673a;--accent-soft:#e07a4a;--locked:#5a7ab0;--locked-soft:#7a9ad0;--file-color:#4a9a6e;--file-soft:#6abd8e;--fav-color:#d4a017;--border:#3a3028;--shadow:rgba(0,0,0,.35);--tag-bg:#302820;--header-bg:#0e0c0a;--line-color:rgba(200,160,100,.04);--search-bg:#2a2420;--modal-bg:#1e1a16;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'IM Fell English',serif;background:var(--paper);color:var(--ink);min-height:100vh;background-image:repeating-linear-gradient(transparent,transparent 27px,var(--line-color) 27px,var(--line-color) 28px);transition:background .3s,color .3s;}
+/* ── HEADER ── */
 header{background:var(--header-bg);color:var(--paper);padding:0 1rem;display:flex;align-items:center;justify-content:space-between;height:56px;border-bottom:3px solid var(--accent);position:sticky;top:0;z-index:100;gap:.5rem;}
 .logo{font-family:'Playfair Display',serif;font-size:1.15rem;letter-spacing:.05em;display:flex;align-items:center;gap:.4rem;white-space:nowrap;flex-shrink:0;}
-.header-actions{display:flex;gap:.4rem;align-items:center;flex-wrap:nowrap;}
+.header-actions{display:flex;gap:.4rem;align-items:center;}
 .btn-primary{background:var(--accent);color:#fff;border:none;padding:.4rem .75rem;font-family:'Special Elite',cursive;font-size:.78rem;cursor:pointer;letter-spacing:.04em;transition:background .2s;white-space:nowrap;flex-shrink:0;}
 .btn-primary:hover{background:var(--accent-soft);}
 .btn-primary.file-btn{background:var(--file-color);}
 .btn-primary.file-btn:hover{background:var(--file-soft);}
 .btn-secondary{background:transparent;border:1px solid var(--border);color:var(--ink-light);padding:.38rem .75rem;font-family:'Special Elite',cursive;font-size:.76rem;cursor:pointer;transition:background .2s;white-space:nowrap;}
 .btn-secondary:hover{background:var(--tag-bg);}
-.btn-icon{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);padding:.38rem .55rem;font-size:1rem;cursor:pointer;border-radius:3px;transition:background .2s,color .2s;flex-shrink:0;line-height:1;}
+.btn-icon{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);padding:.38rem .55rem;font-size:1rem;cursor:pointer;border-radius:3px;transition:background .2s;flex-shrink:0;line-height:1;}
 .btn-icon:hover{background:rgba(255,255,255,.12);color:#fff;}
-.btn-crypto{background:var(--locked);color:#fff;border:none;padding:.3rem .7rem;font-family:'Special Elite',cursive;font-size:.72rem;cursor:pointer;letter-spacing:.04em;transition:background .2s;}
-.btn-crypto:hover{background:var(--locked-soft);}
-.btn-crypto.btn-encrypt{background:var(--accent);}
-.btn-crypto.btn-encrypt:hover{background:var(--accent-soft);}
-.btn-export-note{background:transparent;border:1px solid var(--border);color:var(--ink-faint);padding:.3rem .6rem;font-family:'Special Elite',cursive;font-size:.7rem;cursor:pointer;transition:background .2s;}
-.btn-export-note:hover{background:var(--tag-bg);}
 .supabase-status{font-family:'Special Elite',cursive;font-size:.65rem;letter-spacing:.07em;opacity:.7;display:flex;align-items:center;gap:.35rem;flex-shrink:0;}
 .status-dot{width:7px;height:7px;border-radius:50%;background:#aaa;transition:background .3s;flex-shrink:0;}
 .status-dot.connected{background:#6fcf6f;}
 .status-dot.error{background:#e07070;}
-
+#logoutBtn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);border-radius:3px;padding:.25rem .7rem;cursor:pointer;font-family:'Special Elite',cursive;font-size:.72rem;transition:all .2s;}
+#logoutBtn:hover{border-color:rgba(255,255,255,.5);color:#fff;}
 /* ── LAYOUT ── */
 .app-layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 56px);transition:grid-template-columns .25s;}
 .app-layout.sidebar-collapsed{grid-template-columns:36px 1fr;}
-
 /* ── ASIDE ── */
-aside{background:var(--paper-dark);border-right:1px solid var(--border);padding:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow:hidden;transition:background .3s,width .25s;display:flex;flex-direction:column;}
+aside{background:var(--paper-dark);border-right:1px solid var(--border);position:sticky;top:56px;height:calc(100vh - 56px);overflow:hidden;display:flex;flex-direction:column;}
 .sidebar-inner{flex:1;overflow-y:auto;overflow-x:hidden;padding:1rem .85rem;transition:opacity .2s;}
 .app-layout.sidebar-collapsed .sidebar-inner{opacity:0;pointer-events:none;}
-.sidebar-toggle{width:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;height:36px;cursor:pointer;border-bottom:1px solid var(--border);background:var(--paper-dark);position:sticky;top:0;z-index:2;color:var(--ink-faint);font-size:.9rem;transition:background .2s;user-select:none;}
+.sidebar-toggle{width:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;height:36px;cursor:pointer;border-bottom:1px solid var(--border);background:var(--paper-dark);position:sticky;top:0;z-index:2;color:var(--ink-faint);font-size:.9rem;user-select:none;transition:background .2s;}
 .sidebar-toggle:hover{background:var(--tag-bg);color:var(--ink);}
 .app-layout.sidebar-collapsed .sidebar-toggle{border-bottom:none;height:100%;align-items:flex-start;padding-top:10px;}
-
 .sidebar-section-title{font-family:'Special Elite',cursive;font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:.5rem;padding-bottom:.3rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .sidebar-section-actions{display:flex;gap:.25rem;}
 .sidebar-icon-btn{background:transparent;border:none;cursor:pointer;color:var(--ink-faint);font-size:.75rem;padding:.1rem .25rem;border-radius:2px;transition:color .15s,background .15s;}
@@ -61,7 +57,7 @@ aside{background:var(--paper-dark);border-right:1px solid var(--border);padding:
 .tag-add-form button{background:var(--accent);color:#fff;border:none;padding:.35rem .6rem;cursor:pointer;font-size:.88rem;transition:background .2s;flex-shrink:0;}
 .tag-add-form button:hover{background:var(--accent-soft);}
 .tag-list{display:flex;flex-direction:column;gap:.15rem;margin-bottom:1rem;}
-.tag-item{display:flex;align-items:center;gap:.3rem;padding:.3rem .45rem;cursor:pointer;border-radius:3px;transition:background .15s;font-family:'Special Elite',cursive;font-size:.78rem;letter-spacing:.03em;user-select:none;}
+.tag-item{display:flex;align-items:center;gap:.3rem;padding:.3rem .45rem;cursor:pointer;border-radius:3px;transition:background .15s;font-family:'Special Elite',cursive;font-size:.78rem;user-select:none;}
 .tag-item:hover{background:var(--tag-bg);}
 .tag-item.active{background:var(--accent);color:#fff;}
 .tag-item.active .tag-count{color:rgba(255,255,255,.7);}
@@ -72,42 +68,34 @@ aside{background:var(--paper-dark);border-right:1px solid var(--border);padding:
 .tag-action-btn{background:transparent;border:none;cursor:pointer;font-size:.65rem;color:var(--ink-faint);padding:.1rem .2rem;border-radius:2px;line-height:1;}
 .tag-action-btn:hover{background:rgba(0,0,0,.08);color:var(--ink);}
 .tag-item.active .tag-action-btn:hover{background:rgba(255,255,255,.2);color:#fff;}
-/* hierarquia */
 .tag-children{padding-left:1rem;display:flex;flex-direction:column;gap:.15rem;margin-top:.1rem;}
-.tag-expand-btn{background:transparent;border:none;cursor:pointer;font-size:.6rem;color:var(--ink-faint);width:14px;text-align:center;flex-shrink:0;transition:transform .15s;}
+.tag-expand-btn{background:transparent;border:none;cursor:pointer;font-size:.6rem;color:var(--ink-faint);width:14px;text-align:center;flex-shrink:0;transition:transform .15s;line-height:1;padding:0;}
 .tag-expand-btn.open{transform:rotate(90deg);}
-
 /* ── MAIN ── */
 main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 .main-toolbar{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;}
-.search-box{flex:1;min-width:160px;background:var(--search-bg);border:1px solid var(--border);padding:.42rem .65rem;font-family:'IM Fell English',serif;font-size:.88rem;color:var(--ink);outline:none;transition:border .2s;}
+.search-box{flex:1;min-width:160px;background:var(--search-bg);border:1px solid var(--border);padding:.42rem .65rem;font-family:'IM Fell English',serif;font-size:.88rem;color:var(--ink);outline:none;}
 .search-box:focus{border-color:var(--accent);}
 .filter-label{font-family:'Special Elite',cursive;font-size:.72rem;color:var(--ink-faint);letter-spacing:.06em;white-space:nowrap;}
-
-/* Botão cifrar todas */
 .global-crypto-btn{display:flex;align-items:center;gap:.35rem;background:var(--locked);color:#fff;border:none;padding:.38rem .7rem;font-family:'Special Elite',cursive;font-size:.74rem;cursor:pointer;letter-spacing:.04em;transition:background .2s;flex-shrink:0;}
 .global-crypto-btn:hover{background:var(--locked-soft);}
 .global-crypto-btn.unlocked-state{background:var(--accent);}
 .global-crypto-btn.unlocked-state:hover{background:var(--accent-soft);}
-
 .content-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.85rem;}
 .type-divider{grid-column:1/-1;font-family:'Special Elite',cursive;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding:.4rem 0;border-bottom:1px solid var(--border);margin-top:.35rem;}
-
 /* ── CARDS ── */
 .note-card,.file-card{background:var(--card-bg);border:1px solid var(--border);padding:.85rem;cursor:pointer;transition:box-shadow .2s,border-color .2s;position:relative;}
 .note-card:hover,.file-card:hover{box-shadow:0 3px 14px var(--shadow);border-color:var(--ink-faint);}
 .locked-card{border-left:3px solid var(--locked);}
 .unlocked-card{border-left:3px solid #6fcf6f;}
 .fav-card{border-top:2px solid var(--fav-color);}
-
-/* Ações do card — reorganizadas para não sobrepor badge */
 .card-actions{position:absolute;top:.5rem;right:.5rem;display:flex;gap:.25rem;opacity:0;transition:opacity .2s;z-index:2;}
 .note-card:hover .card-actions,.file-card:hover .card-actions{opacity:1;}
 .icon-btn{background:var(--paper-dark);border:1px solid var(--border);color:var(--ink-faint);padding:.22rem .4rem;font-size:.72rem;cursor:pointer;border-radius:2px;transition:background .15s,color .15s;line-height:1;}
 .icon-btn:hover{background:var(--tag-bg);color:var(--ink);}
 .icon-btn.delete:hover{background:#fde;color:#c00;}
 .icon-btn.fav-active{color:var(--fav-color);}
-.card-header{display:flex;align-items:flex-start;gap:.5rem;margin-bottom:.45rem;padding-right:4.5rem;}
+.card-header{display:flex;align-items:flex-start;gap:.5rem;margin-bottom:.45rem;padding-right:5rem;}
 .card-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:600;color:var(--ink);line-height:1.3;word-break:break-word;}
 .card-badge{font-size:.85rem;flex-shrink:0;margin-top:.05rem;}
 .note-preview{font-size:.78rem;color:var(--ink-light);line-height:1.55;margin-bottom:.55rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
@@ -123,8 +111,7 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 .empty-state{grid-column:1/-1;text-align:center;padding:3.5rem 1rem;color:var(--ink-faint);}
 .empty-state h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.5rem;}
 .empty-state p{font-family:'Special Elite',cursive;font-size:.78rem;letter-spacing:.05em;}
-
-/* ── OVERLAY / MODALS ── */
+/* ── OVERLAYS ── */
 .overlay{position:fixed;inset:0;background:rgba(26,20,16,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;}
 .overlay.open{display:flex;}
 .modal-header{display:flex;align-items:flex-start;gap:.75rem;padding:.9rem 1.1rem;border-bottom:1px solid var(--border);}
@@ -132,25 +119,42 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 .modal-close{background:transparent;border:none;font-size:1.1rem;cursor:pointer;color:var(--ink-faint);padding:.2rem;line-height:1;flex-shrink:0;margin-top:.1rem;}
 .modal-close:hover{color:var(--ink);}
 .modal-footer{display:flex;justify-content:flex-end;gap:.65rem;padding:.9rem 1.1rem;border-top:1px solid var(--border);}
-
 /* NOTE EDITOR */
-.editor-modal{background:var(--modal-bg);width:100%;max-width:680px;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35);}
+.editor-modal{background:var(--modal-bg);width:100%;max-width:780px;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35);}
 .note-title-input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);padding:.35rem 0;font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--ink);outline:none;margin-bottom:.55rem;}
 .note-title-input:focus{border-bottom-color:var(--accent);}
 .tags-input-area{display:flex;flex-wrap:wrap;gap:.3rem;align-items:center;}
 .tag-chip-remove{background:var(--tag-bg);border:none;color:var(--ink-light);padding:.15rem .45rem;font-family:'Special Elite',cursive;font-size:.65rem;cursor:pointer;border-radius:2px;}
 .tag-chip-remove:hover{background:var(--border);}
 .tags-select{background:var(--search-bg);border:1px solid var(--border);color:var(--ink-faint);font-family:'Special Elite',cursive;font-size:.72rem;padding:.18rem .35rem;cursor:pointer;outline:none;}
+.encrypt-toggle-row{display:flex;align-items:center;gap:.4rem;font-family:'Special Elite',cursive;font-size:.72rem;color:var(--ink-faint);cursor:pointer;padding:.55rem 1.1rem;background:var(--paper-dark);border-bottom:1px solid var(--border);}
+.encrypt-toggle-row input[type=checkbox]{accent-color:var(--locked);width:13px;height:13px;cursor:pointer;}
 .crypto-bar{display:flex;align-items:center;gap:.55rem;padding:.55rem 1.1rem;background:var(--paper-dark);border-bottom:1px solid var(--border);flex-wrap:wrap;}
 .crypto-status{display:flex;align-items:center;gap:.35rem;font-family:'Special Elite',cursive;font-size:.72rem;letter-spacing:.05em;}
 .crypto-status.locked{color:var(--locked-soft);}
 .crypto-status.unlocked{color:#4a9a4a;}
-/* toggle cifrar (checkbox) */
-.encrypt-toggle-row{display:flex;align-items:center;gap:.4rem;font-family:'Special Elite',cursive;font-size:.72rem;color:var(--ink-faint);cursor:pointer;padding:.55rem 1.1rem;background:var(--paper-dark);border-bottom:1px solid var(--border);}
-.encrypt-toggle-row input[type=checkbox]{accent-color:var(--locked);width:13px;height:13px;cursor:pointer;}
-.editor-body{flex:1;overflow:hidden;display:flex;flex-direction:column;}
-.note-textarea{flex:1;width:100%;border:none;resize:none;padding:1rem 1.1rem;font-family:'IM Fell English',serif;font-size:.92rem;color:var(--ink);background:var(--modal-bg);outline:none;line-height:1.7;min-height:220px;}
-
+.btn-crypto{background:var(--locked);color:#fff;border:none;padding:.3rem .7rem;font-family:'Special Elite',cursive;font-size:.72rem;cursor:pointer;letter-spacing:.04em;transition:background .2s;}
+.btn-crypto:hover{background:var(--locked-soft);}
+.btn-crypto.btn-encrypt{background:var(--accent);}
+.btn-crypto.btn-encrypt:hover{background:var(--accent-soft);}
+.btn-export-note{background:transparent;border:1px solid var(--border);color:var(--ink-faint);padding:.3rem .6rem;font-family:'Special Elite',cursive;font-size:.7rem;cursor:pointer;transition:background .2s;}
+.btn-export-note:hover{background:var(--tag-bg);}
+/* Quill editor customizado */
+.editor-body{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+.ql-toolbar.ql-snow{border:none;border-bottom:1px solid var(--border);background:var(--paper-dark);padding:.4rem .7rem;flex-shrink:0;}
+.ql-container.ql-snow{border:none;flex:1;overflow-y:auto;font-family:'IM Fell English',serif;font-size:.92rem;min-height:200px;}
+.ql-editor{padding:1rem 1.1rem;color:var(--ink);min-height:200px;line-height:1.7;}
+.ql-editor.ql-blank::before{color:var(--ink-faint);font-style:italic;font-family:'IM Fell English',serif;}
+body.dark .ql-toolbar.ql-snow .ql-stroke{stroke:var(--ink-light);}
+body.dark .ql-toolbar.ql-snow .ql-fill{fill:var(--ink-light);}
+body.dark .ql-toolbar.ql-snow .ql-picker{color:var(--ink-light);}
+body.dark .ql-toolbar.ql-snow .ql-picker-options{background:var(--paper-dark);border-color:var(--border);}
+body.dark .ql-toolbar.ql-snow button:hover .ql-stroke,body.dark .ql-toolbar.ql-snow button.ql-active .ql-stroke{stroke:var(--accent-soft);}
+body.dark .ql-toolbar.ql-snow button:hover .ql-fill,body.dark .ql-toolbar.ql-snow button.ql-active .ql-fill{fill:var(--accent-soft);}
+body.dark .ql-snow .ql-editor img{max-width:100%;border:1px solid var(--border);}
+.ql-snow .ql-editor img{max-width:100%;}
+/* textarea fallback (notas cifradas) */
+.note-textarea{width:100%;border:none;resize:none;padding:1rem 1.1rem;font-family:'IM Fell English',serif;font-size:.92rem;color:var(--ink);background:var(--modal-bg);outline:none;line-height:1.7;min-height:200px;flex:1;}
 /* FILE MODAL */
 .file-modal{background:var(--modal-bg);width:100%;max-width:520px;max-height:94vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35);}
 .drop-zone{border:2px dashed var(--border);padding:2rem;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;}
@@ -168,7 +172,6 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 .field-input,.field-textarea{width:100%;background:var(--search-bg);border:1px solid var(--border);padding:.42rem .6rem;font-family:'IM Fell English',serif;font-size:.86rem;color:var(--ink);outline:none;}
 .field-input:focus,.field-textarea:focus{border-color:var(--accent);}
 .field-textarea{resize:vertical;min-height:54px;}
-
 /* FILE VIEWER */
 .file-viewer-modal{background:var(--modal-bg);width:100%;max-width:700px;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35);}
 .file-viewer-header{display:flex;align-items:flex-start;gap:.85rem;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
@@ -185,10 +188,9 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 .preview-generic{padding:2.25rem;text-align:center;color:var(--ink-faint);}
 .preview-generic .big-icon{font-size:3.25rem;margin-bottom:.65rem;}
 .preview-generic p{font-family:'Special Elite',cursive;font-size:.82rem;letter-spacing:.06em;}
-.file-viewer-footer{padding:.9rem 1.25rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.65rem;align-items:center;}
+.file-viewer-footer{padding:.9rem 1.25rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.65rem;}
 .btn-download{background:var(--file-color);color:white;border:none;padding:.42rem 1rem;font-family:'Special Elite',cursive;font-size:.82rem;cursor:pointer;letter-spacing:.06em;transition:background .2s;}
 .btn-download:hover{background:var(--file-soft);}
-
 /* PASSWORD */
 .pass-modal{background:var(--modal-bg);width:100%;max-width:360px;border-top:4px solid var(--locked);box-shadow:0 20px 60px rgba(0,0,0,.4);padding:1.75rem;}
 .pass-modal h3{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--ink);margin-bottom:.35rem;}
@@ -199,24 +201,20 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 .pass-error{color:#e07070;font-family:'Special Elite',cursive;font-size:.72rem;letter-spacing:.05em;margin-top:.35rem;display:none;}
 .pass-error.visible{display:block;}
 .pass-modal-actions{display:flex;gap:.65rem;justify-content:flex-end;}
-
 /* CONFIG */
-.config-modal{background:var(--modal-bg);width:100%;max-width:420px;border-top:4px solid var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.4);padding:1.75rem;max-height:92vh;overflow-y:auto;}
+.config-modal{background:var(--modal-bg);width:100%;max-width:400px;border-top:4px solid var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.4);padding:1.75rem;max-height:92vh;overflow-y:auto;}
 .config-modal h3{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--ink);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);}
-.config-section-label{font-family:'Special Elite',cursive;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin:.9rem 0 .45rem;display:block;}
-.io-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.25rem;}
 .config-hint{font-size:.74rem;color:var(--ink-faint);margin-top:.28rem;line-height:1.4;}
+.io-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.25rem;}
 .config-actions{display:flex;gap:.65rem;justify-content:flex-end;margin-top:1.25rem;}
-
-/* RENAME TAG MODAL */
+/* RENAME */
 .rename-modal{background:var(--modal-bg);width:100%;max-width:340px;border-top:4px solid var(--accent);box-shadow:0 20px 60px rgba(0,0,0,.4);padding:1.5rem;}
 .rename-modal h3{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--ink);margin-bottom:.85rem;}
 .rename-input{width:100%;background:var(--search-bg);border:1px solid var(--border);padding:.5rem .65rem;font-family:'Special Elite',cursive;font-size:.86rem;color:var(--ink);outline:none;margin-bottom:.9rem;}
 .rename-input:focus{border-color:var(--accent);}
 .rename-actions{display:flex;gap:.5rem;justify-content:flex-end;}
-
 /* LOGIN */
-#loginOverlay{position:fixed;inset:0;background:var(--paper);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;}
+#loginOverlay{position:fixed;inset:0;background:var(--paper);z-index:9999;display:none;align-items:center;justify-content:center;}
 .login-box{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:2.5rem 2rem;width:100%;max-width:360px;box-shadow:0 8px 32px var(--shadow);}
 .login-box h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:.25rem;color:var(--ink);}
 .login-box p{font-size:.8rem;color:var(--ink-faint);margin-bottom:1.5rem;}
@@ -228,22 +226,15 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 .login-btn:hover{opacity:.88;}
 .login-btn:disabled{opacity:.5;cursor:default;}
 .login-error{color:#c0392b;font-family:'Special Elite',cursive;font-size:.78rem;margin-top:.5rem;min-height:1.1rem;}
-
-/* LOGOUT BTN */
-#logoutBtn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);border-radius:3px;padding:.25rem .7rem;cursor:pointer;font-family:'Special Elite',cursive;font-size:.72rem;transition:all .2s;letter-spacing:.04em;}
-#logoutBtn:hover{border-color:rgba(255,255,255,.5);color:#fff;}
-
 /* TOAST */
 .toast{position:fixed;bottom:1.25rem;right:1.25rem;background:var(--header-bg);color:var(--paper);padding:.55rem 1.1rem;font-family:'Special Elite',cursive;font-size:.78rem;letter-spacing:.06em;z-index:999;opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s;pointer-events:none;max-width:280px;}
 .toast.show{opacity:1;transform:translateY(0);}
 .toast.success{border-left:3px solid #6fcf6f;}
 .toast.error{border-left:3px solid #e07070;}
 .toast.info{border-left:3px solid var(--locked-soft);}
-
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-
 @media(max-width:640px){
   .app-layout{grid-template-columns:36px 1fr !important;}
   .sidebar-inner{opacity:0;pointer-events:none;}
@@ -260,35 +251,22 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 </style>
 </head>
 <body>
-
-<!-- LOGIN -->
 <div id="loginOverlay" style="display:none">
   <div class="login-box">
     <h2>📜 Notas Pessoais</h2>
     <p>Faça login para acessar suas anotações.</p>
-    <div class="login-field">
-      <label>E-mail</label>
-      <input type="email" id="loginEmail" autocomplete="username" placeholder="seu@email.com">
-    </div>
-    <div class="login-field">
-      <label>Senha</label>
-      <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••"
-        onkeydown="if(event.key==='Enter')handleLogin()">
-    </div>
+    <div class="login-field"><label>E-mail</label><input type="email" id="loginEmail" autocomplete="username" placeholder="seu@email.com"></div>
+    <div class="login-field"><label>Senha</label><input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()"></div>
     <button class="login-btn" id="loginBtn" onclick="handleLogin()">Entrar</button>
     <div class="login-error" id="loginError"></div>
   </div>
 </div>
 
-<!-- APP SHELL -->
 <div id="appShell" style="display:none">
 <header>
   <div class="logo"><span>📜</span><span> Notas Pessoais</span></div>
   <div class="header-actions">
-    <div class="supabase-status">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusText">—</span>
-    </div>
+    <div class="supabase-status"><div class="status-dot" id="statusDot"></div><span id="statusText">—</span></div>
     <button class="btn-icon" onclick="openConfig()" title="Configurações">⚙</button>
     <button class="btn-primary file-btn" onclick="openFileUpload()" title="Anexar arquivo">📎</button>
     <button class="btn-primary" onclick="openNewNote()" title="Nova nota">✏</button>
@@ -301,26 +279,20 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
   <aside id="sidebar">
     <div class="sidebar-toggle" onclick="toggleSidebar()" id="sidebarToggle" title="Recolher/expandir">◀</div>
     <div class="sidebar-inner" id="sidebarInner">
-
       <!-- FAVORITOS -->
       <div class="sidebar-section-title">⭐ Favoritos</div>
-      <div class="tag-list" id="favList">
+      <div class="tag-list">
         <div class="tag-item" id="favAllItem" data-tag="__fav__" onclick="filterByTag(this,'__fav__')">
           <span class="tag-label">★ Todos os favoritos</span>
           <span class="tag-count" id="countFav">0</span>
         </div>
       </div>
-
       <!-- NOVA TAG -->
-      <div class="sidebar-section-title">
-        <span>Nova Tag</span>
-      </div>
+      <div class="sidebar-section-title"><span>Nova Tag</span></div>
       <div class="tag-add-form">
-        <input type="text" id="newTagInput" placeholder="tag ou pai/filho…" maxlength="60"
-          onkeydown="if(event.key==='Enter')addTag()">
+        <input type="text" id="newTagInput" placeholder="tag ou pai/filho…" maxlength="80" onkeydown="if(event.key==='Enter')addTag()">
         <button onclick="addTag()">+</button>
       </div>
-
       <!-- TAGS -->
       <div class="sidebar-section-title">
         <span>Tags</span>
@@ -335,19 +307,18 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
           <span class="tag-count" id="countAll">0</span>
         </div>
       </div>
-
-    </div><!-- sidebar-inner -->
+    </div>
   </aside>
 
   <main>
     <div class="main-toolbar">
-      <input class="search-box" type="text" placeholder="Buscar notas e arquivos…" id="searchInput" oninput="renderContent()">
-      <button class="global-crypto-btn" id="globalCryptoBtn" onclick="toggleGlobalCrypto()" title="Cifrar/decifrar todas as notas marcadas">🔒 Cifrar Todas</button>
+      <input class="search-box" type="text" placeholder="Buscar títulos, conteúdo e arquivos…" id="searchInput" oninput="renderContent()">
+      <button class="global-crypto-btn" id="globalCryptoBtn" onclick="toggleGlobalCrypto()">🔒 Cifrar Todas</button>
       <span class="filter-label" id="filterLabel">Todas</span>
     </div>
     <div class="content-grid" id="contentGrid"></div>
   </main>
-</div><!-- app-layout -->
+</div>
 
 <!-- NOTE EDITOR -->
 <div class="overlay" id="editorOverlay">
@@ -361,20 +332,22 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
       </div>
       <button class="modal-close" onclick="closeEditor()">✕</button>
     </div>
-    <!-- Toggle cifrar -->
     <label class="encrypt-toggle-row">
       <input type="checkbox" id="encryptToggle" onchange="onEncryptToggleChange()">
       Cifrar esta nota com senha global
     </label>
-    <!-- Barra de estado crypto (só aparece se estiver cifrada) -->
     <div class="crypto-bar" id="cryptoBar" style="display:none">
       <div class="crypto-status locked" id="cryptoStatus">🔒 <span id="cryptoStatusText">Nota cifrada</span></div>
-      <button class="btn-export-note" id="btnExportNote" onclick="exportCurrentNote()" title="Exportar .anote">⬇ .anote</button>
+      <button class="btn-export-note" id="btnExportNote" onclick="exportCurrentNote()">⬇ .anote</button>
       <button class="btn-crypto btn-decrypt" id="btnDecrypt" onclick="requestDecrypt()">Decifrar</button>
       <button class="btn-crypto btn-encrypt" id="btnEncrypt" onclick="encryptAndLock()" style="display:none">Cifrar</button>
     </div>
-    <div class="editor-body">
-      <textarea class="note-textarea" id="noteTextarea" placeholder="Escreva sua anotação aqui…" rows="10"></textarea>
+    <div class="editor-body" id="editorBody">
+      <!-- Quill toolbar + editor montados via JS -->
+      <div id="quillToolbar"></div>
+      <div id="quillEditor"></div>
+      <!-- textarea só para notas cifradas (readonly enquanto locked) -->
+      <textarea class="note-textarea" id="noteTextarea" placeholder="Decifre para editar…" style="display:none"></textarea>
     </div>
     <div class="modal-footer">
       <span style="flex:1;font-family:'Special Elite',cursive;font-size:.68rem;color:var(--ink-faint);letter-spacing:.05em" id="editorHint"></span>
@@ -427,11 +400,7 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
       <div class="file-viewer-icon" id="fvIcon">📄</div>
       <div class="file-viewer-info">
         <div class="file-viewer-title" id="fvTitle"></div>
-        <div class="file-viewer-meta">
-          <span class="file-ext-badge" id="fvExt"></span>
-          <span class="file-size" id="fvSize"></span>
-          <span class="card-date" id="fvDate"></span>
-        </div>
+        <div class="file-viewer-meta"><span class="file-ext-badge" id="fvExt"></span><span class="file-size" id="fvSize"></span><span class="card-date" id="fvDate"></span></div>
         <div class="file-viewer-desc" id="fvDesc"></div>
         <div class="file-viewer-tags" id="fvTags"></div>
       </div>
@@ -446,7 +415,7 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
   </div>
 </div>
 
-<!-- PASSWORD (global) -->
+<!-- PASSWORD -->
 <div class="overlay" id="passOverlay">
   <div class="pass-modal">
     <h3 id="passModalTitle">Senha Global</h3>
@@ -466,8 +435,7 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 <div class="overlay" id="renameOverlay">
   <div class="rename-modal">
     <h3>Renomear Tag</h3>
-    <input class="rename-input" type="text" id="renameInput" maxlength="60"
-      onkeydown="if(event.key==='Enter')confirmRename()">
+    <input class="rename-input" type="text" id="renameInput" maxlength="60" onkeydown="if(event.key==='Enter')confirmRename()">
     <div class="rename-actions">
       <button class="btn-secondary" onclick="closeRename()">Cancelar</button>
       <button class="btn-primary" onclick="confirmRename()">Renomear</button>
@@ -479,58 +447,77 @@ main{padding:1.1rem 1.25rem;overflow-x:hidden;}
 <div class="overlay" id="configOverlay">
   <div class="config-modal">
     <h3>⚙ Configurações</h3>
-    <span class="config-section-label">Importar Nota Cifrada</span>
     <div class="io-row">
       <button class="btn-secondary" onclick="document.getElementById('importNoteInput').click()">⬆ Importar .anote</button>
       <input type="file" id="importNoteInput" accept=".anote,.json" style="display:none" onchange="importNote(event)">
     </div>
     <div class="config-hint">Importa uma nota exportada (.anote). O conteúdo permanece cifrado.</div>
-    <div class="config-actions">
-      <button class="btn-secondary" onclick="closeConfig()">Fechar</button>
-    </div>
+    <div class="config-actions"><button class="btn-secondary" onclick="closeConfig()">Fechar</button></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-</div><!-- #appShell -->
+</div><!-- appShell -->
 
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <script>
-/* ── CONSTANTES SUPABASE ── */
+/* ── SUPABASE CONFIG ── */
 const SB_URL='https://gpytubxtvfvsmmynywru.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdweXR1Ynh0dmZ2c21teW55d3J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMjI1NDUsImV4cCI6MjA5MDc5ODU0NX0.zLEY1ZzKddrffjlo6rtYnzc7nfLeJeTk0rC5PxtPFNo';
 
 /* ── STATE ── */
 let state={
-  notes:[],files:[],
-  // tags: [{id, name, parent_id}]
-  tags:[],
-  filter:'all',
-  accessToken:null,
+  notes:[],files:[],tags:[],   // tags: [{id,name,parent_id}]
+  filter:'all',accessToken:null,
   supabase:{url:SB_URL,key:SB_ANON},
   isConnected:false,
-  globalCryptoUnlocked:false,   // true = notas marcadas estão decifradas em memória
-  globalPass:null,              // senha global em memória enquanto unlocked
+  globalCryptoUnlocked:false,globalPass:null,
   editingNoteId:null,isNewNote:false,noteTags:[],isDecrypted:false,
   pendingPassResolve:null,pendingPassReject:null,
   editingFileId:null,isNewFile:false,fileTags:[],
   selectedFile:null,selectedFileB64:null,viewingFileId:null,
-  renamingTagId:null,
-  expandedTags:new Set(),
-  sidebarOpen:true
+  renamingTagId:null,expandedTags:new Set(),sidebarOpen:true
 };
 
+let quill=null;   // instância do Quill
+
 /* ── DARK MODE ── */
-function toggleDark(){document.body.classList.toggle('dark');const d=document.body.classList.contains('dark');localStorage.setItem('dark_mode',d?'1':'0');const b=document.getElementById('darkBtn');b.textContent=d?'☀':'🌙';b.title=d?'Modo claro':'Modo escuro';}
+function toggleDark(){document.body.classList.toggle('dark');const d=document.body.classList.contains('dark');localStorage.setItem('dark_mode',d?'1':'0');const b=document.getElementById('darkBtn');if(b){b.textContent=d?'☀':'🌙';b.title=d?'Modo claro':'Modo escuro';}}
 function applyDark(){if(localStorage.getItem('dark_mode')==='1'){document.body.classList.add('dark');const b=document.getElementById('darkBtn');if(b){b.textContent='☀';b.title='Modo claro';}}}
 
 /* ── SIDEBAR ── */
-function toggleSidebar(){
-  state.sidebarOpen=!state.sidebarOpen;
-  const layout=document.getElementById('appLayout');
-  const btn=document.getElementById('sidebarToggle');
-  layout.classList.toggle('sidebar-collapsed',!state.sidebarOpen);
-  btn.textContent=state.sidebarOpen?'◀':'▶';
-  btn.title=state.sidebarOpen?'Recolher':'Expandir';
+function toggleSidebar(){state.sidebarOpen=!state.sidebarOpen;const l=document.getElementById('appLayout'),b=document.getElementById('sidebarToggle');l.classList.toggle('sidebar-collapsed',!state.sidebarOpen);b.textContent=state.sidebarOpen?'◀':'▶';b.title=state.sidebarOpen?'Recolher':'Expandir';}
+
+/* ── QUILL INIT ── */
+function initQuill(){
+  if(quill)return;
+  // Monta toolbar no elemento #quillToolbar
+  document.getElementById('quillToolbar').innerHTML=`
+    <span class="ql-formats">
+      <select class="ql-header"><option value="1">H1</option><option value="2">H2</option><option value="3">H3</option><option selected></option></select>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-bold"></button>
+      <button class="ql-italic"></button>
+      <button class="ql-underline"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-list" value="ordered"></button>
+      <button class="ql-list" value="bullet"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-link"></button>
+      <button class="ql-image"></button>
+    </span>
+    <span class="ql-formats">
+      <button class="ql-clean"></button>
+    </span>`;
+
+  quill=new Quill('#quillEditor',{
+    modules:{toolbar:'#quillToolbar'},
+    theme:'snow',
+    placeholder:'Escreva sua anotação aqui…'
+  });
 }
 
 /* ── CRIPTO ── */
@@ -544,45 +531,31 @@ async function toggleGlobalCrypto(){
   const encNotes=state.notes.filter(n=>n.encrypt);
   if(!encNotes.length){showToast('Nenhuma nota marcada para cifrar.','info');return;}
   if(state.globalCryptoUnlocked){
-    // Recifrar todas
     if(!state.globalPass)return;
     for(const n of encNotes){
-      if(n._plainText!==undefined){
-        n.encryptedContent=await encryptText(n._plainText,state.globalPass);
-        delete n._plainText;
+      if(n._plainContent!==undefined){
+        n.encryptedContent=await encryptText(n._plainContent,state.globalPass);
+        delete n._plainContent;
       }
     }
-    state.globalCryptoUnlocked=false;
-    state.globalPass=null;
-    updateGlobalCryptoBtn();
-    renderAll();
-    showToast('Notas cifradas.','success');
-    // Persiste
-    for(const n of encNotes) await persistNote(n);
+    state.globalCryptoUnlocked=false;state.globalPass=null;
+    updateGlobalCryptoBtn();renderAll();showToast('Notas cifradas.','success');
+    for(const n of encNotes)await persistNote(n);
   } else {
-    // Pedir senha e decifrar
-    let pass;
-    try{pass=await askPassword('global');}catch(e){return;}
+    let pass;try{pass=await askPassword('global');}catch(e){return;}
     let failed=0;
     for(const n of encNotes){
       if(n.encryptedContent){
-        try{n._plainText=await decryptText(n.encryptedContent,pass);}
-        catch(e){failed++;n._plainText=null;}
+        try{n._plainContent=await decryptText(n.encryptedContent,pass);}
+        catch(e){failed++;n._plainContent=null;}
       }
     }
     if(failed>0){showToast(`${failed} nota(s) com senha diferente.`,'error');return;}
-    state.globalCryptoUnlocked=true;
-    state.globalPass=pass;
-    updateGlobalCryptoBtn();
-    renderAll();
-    showToast('Notas decifradas.','success');
+    state.globalCryptoUnlocked=true;state.globalPass=pass;
+    updateGlobalCryptoBtn();renderAll();showToast('Notas decifradas.','success');
   }
 }
-function updateGlobalCryptoBtn(){
-  const btn=document.getElementById('globalCryptoBtn');
-  if(state.globalCryptoUnlocked){btn.textContent='🔓 Cifrar Todas';btn.classList.add('unlocked-state');}
-  else{btn.textContent='🔒 Cifrar Todas';btn.classList.remove('unlocked-state');}
-}
+function updateGlobalCryptoBtn(){const btn=document.getElementById('globalCryptoBtn');if(state.globalCryptoUnlocked){btn.textContent='🔓 Cifrar Todas';btn.classList.add('unlocked-state');}else{btn.textContent='🔒 Cifrar Todas';btn.classList.remove('unlocked-state');}}
 
 /* ── SUPABASE ── */
 function sbH(){return{'Content-Type':'application/json','apikey':SB_ANON,'Authorization':'Bearer '+(state.accessToken||SB_ANON),'Prefer':'return=representation'};}
@@ -595,11 +568,18 @@ async function loadFromSupabase(){
     sbFetch('files?select=*&order=updated_at.desc')
   ]);
   state.notes=notes.map(n=>({
-    id:n.id,title:n.title,encryptedContent:n.encrypted_content||'',
+    id:n.id,title:n.title,
+    encryptedContent:n.encrypted_content||'',
+    plainContent:n.plain_content||'',   // HTML do Quill para notas não cifradas
     tags:n.tags||[],createdAt:n.created_at,updatedAt:n.updated_at,
     encrypt:!!n.encrypt,favorited:!!n.favorited
   }));
-  state.tags=tags.map(t=>({id:t.id,name:t.name,parent_id:t.parent_id||null}));
+  // FIX: tags agora carregam id e parent_id corretamente
+  state.tags=tags.map(t=>({
+    id:t.id,
+    name:t.name,
+    parent_id:t.parent_id||null
+  }));
   state.files=files.map(f=>({
     id:f.id,title:f.title,description:f.description||'',filename:f.filename,
     mimeType:f.mime_type,sizeBytes:f.size_bytes,dataB64:f.data,
@@ -607,43 +587,50 @@ async function loadFromSupabase(){
   }));
   setConnected(true);
 }
+
 async function saveNoteToSB(note){
-  const p={title:note.title,encrypted_content:note.encryptedContent,tags:note.tags,
-    encrypt:!!note.encrypt,favorited:!!note.favorited,updated_at:new Date().toISOString()};
+  const p={
+    title:note.title,
+    encrypted_content:note.encryptedContent||'',
+    plain_content:note.plainContent||'',   // FIX: salva conteúdo não cifrado
+    tags:note.tags,
+    encrypt:!!note.encrypt,
+    favorited:!!note.favorited,
+    updated_at:new Date().toISOString()
+  };
   if(note.id){await sbFetch(`notes?id=eq.${note.id}`,'PATCH',p);}
   else{const r=await sbFetch('notes','POST',p);note.id=r[0].id;}
 }
 async function deleteNoteFromSB(id){await sbFetch(`notes?id=eq.${id}`,'DELETE');}
 async function saveFileToSB(f){
-  const p={title:f.title,description:f.description,filename:f.filename,mime_type:f.mimeType,
-    size_bytes:f.sizeBytes,data:f.dataB64,tags:f.tags,updated_at:new Date().toISOString()};
+  const p={title:f.title,description:f.description,filename:f.filename,mime_type:f.mimeType,size_bytes:f.sizeBytes,data:f.dataB64,tags:f.tags,updated_at:new Date().toISOString()};
   if(f.id){await sbFetch(`files?id=eq.${f.id}`,'PATCH',p);}
   else{const r=await sbFetch('files','POST',p);f.id=r[0].id;}
 }
 async function deleteFileFromSB(id){await sbFetch(`files?id=eq.${id}`,'DELETE');}
+
+// FIX TAGS: salva uma tag e retorna o id gerado pelo Supabase
 async function saveTagToSB(tag){
-  try{const r=await sbFetch('tags','POST',{name:tag.name,parent_id:tag.parent_id||null});tag.id=r[0].id;}catch(e){}
+  try{
+    const r=await sbFetch('tags','POST',{name:tag.name,parent_id:tag.parent_id||null});
+    if(r&&r[0])tag.id=r[0].id;   // atualiza o id local com o UUID real
+  }catch(e){console.warn('saveTagToSB',e);}
 }
-async function updateTagInSB(tag){try{await sbFetch(`tags?id=eq.${tag.id}`,'PATCH',{name:tag.name,parent_id:tag.parent_id||null});}catch(e){}}
-async function deleteTagFromSB(id){try{await sbFetch(`tags?id=eq.${id}`,'DELETE');}catch(e){}}
+async function updateTagInSB(tag){
+  if(!tag.id||tag.id.startsWith('local_'))return;
+  try{await sbFetch(`tags?id=eq.${tag.id}`,'PATCH',{name:tag.name,parent_id:tag.parent_id||null});}catch(e){}
+}
+async function deleteTagFromSB(id){
+  if(!id||id.startsWith('local_'))return;
+  try{await sbFetch(`tags?id=eq.${id}`,'DELETE');}catch(e){}
+}
 function setConnected(v){state.isConnected=v;document.getElementById('statusDot').className='status-dot '+(v?'connected':'error');document.getElementById('statusText').textContent=v?'OK':'—';}
 
 /* ── AUTH ── */
-async function doLogin(email,password){
-  const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_ANON},body:JSON.stringify({email,password})});
-  const d=await r.json();if(!r.ok)throw new Error(d.error_description||d.msg||'Erro no login');return d;
-}
-async function doRefreshToken(rt){
-  const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_ANON},body:JSON.stringify({refresh_token:rt})});
-  const d=await r.json();if(!r.ok)return null;return d;
-}
+async function doLogin(email,password){const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_ANON},body:JSON.stringify({email,password})});const d=await r.json();if(!r.ok)throw new Error(d.error_description||d.msg||'Erro no login');return d;}
+async function doRefreshToken(rt){const r=await fetch(`${SB_URL}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_ANON},body:JSON.stringify({refresh_token:rt})});const d=await r.json();if(!r.ok)return null;return d;}
 function saveSession(s){localStorage.setItem('np_access_token',s.access_token);localStorage.setItem('np_refresh_token',s.refresh_token);localStorage.setItem('np_expires_at',Date.now()+s.expires_in*1000);state.accessToken=s.access_token;}
-async function getValidToken(){
-  const exp=parseInt(localStorage.getItem('np_expires_at')||'0');
-  if(state.accessToken&&Date.now()<exp-60000)return state.accessToken;
-  const rt=localStorage.getItem('np_refresh_token');if(!rt)return null;
-  const s=await doRefreshToken(rt);if(!s)return null;saveSession(s);return s.access_token;
-}
+async function getValidToken(){const exp=parseInt(localStorage.getItem('np_expires_at')||'0');if(state.accessToken&&Date.now()<exp-60000)return state.accessToken;const rt=localStorage.getItem('np_refresh_token');if(!rt)return null;const s=await doRefreshToken(rt);if(!s)return null;saveSession(s);return s.access_token;}
 async function logout(){localStorage.removeItem('np_access_token');localStorage.removeItem('np_refresh_token');localStorage.removeItem('np_expires_at');state.accessToken=null;state.isConnected=false;showLoginScreen();}
 function showLoginScreen(){document.getElementById('loginOverlay').style.display='flex';document.getElementById('appShell').style.display='none';document.getElementById('loginEmail').value='';document.getElementById('loginPassword').value='';document.getElementById('loginError').textContent='';setTimeout(()=>document.getElementById('loginEmail').focus(),80);}
 function showApp(){document.getElementById('loginOverlay').style.display='none';document.getElementById('appShell').style.display='';}
@@ -657,9 +644,9 @@ async function handleLogin(){
   finally{btn.disabled=false;btn.textContent='Entrar';}
 }
 
-/* ── TAGS ── */
-function tagByName(name){return state.tags.find(t=>t.name===name)||null;}
+/* ── TAGS (FIX hierarquia) ── */
 function tagById(id){return state.tags.find(t=>t.id===id)||null;}
+function tagByName(name){return state.tags.find(t=>t.name===name)||null;}
 function rootTags(){return state.tags.filter(t=>!t.parent_id);}
 function childTags(parentId){return state.tags.filter(t=>t.parent_id===parentId);}
 function allDescendantNames(tagName){
@@ -669,20 +656,25 @@ function allDescendantNames(tagName){
   collect(tag.id);return result;
 }
 
-function addTag(){
+async function addTag(){
   const input=document.getElementById('newTagInput'),raw=input.value.trim();
   if(!raw)return;
-  // Suporta hierarquia: "pai/filho"
+  // Suporta hierarquia: "pai/filho/neto"
   const parts=raw.split('/').map(p=>p.trim().toLowerCase()).filter(Boolean);
   if(!parts.length)return;
   input.value='';
   let parentId=null;
   for(const part of parts){
+    // Verifica se já existe esta tag com este pai
     const existing=state.tags.find(t=>t.name===part&&t.parent_id===parentId);
     if(existing){parentId=existing.id;continue;}
-    const newTag={id:'local_'+Date.now()+'_'+Math.random(),name:part,parent_id:parentId};
+    // Cria tag localmente com id temporário
+    const newTag={id:'local_'+Date.now()+'_'+Math.random().toString(36).slice(2),name:part,parent_id:parentId};
     state.tags.push(newTag);
-    if(state.isConnected)saveTagToSB(newTag).then(()=>renderSidebar());
+    // FIX: salva no SB e obtém o UUID real ANTES de criar o próximo nível
+    if(state.isConnected){
+      await saveTagToSB(newTag);  // atualiza newTag.id com UUID real
+    }
     parentId=newTag.id;
   }
   renderSidebar();
@@ -702,45 +694,38 @@ async function confirmRename(){
   if(!newName){closeRename();return;}
   const tag=tagById(state.renamingTagId);if(!tag){closeRename();return;}
   const oldName=tag.name;
-  // Atualiza notas e arquivos que usam essa tag
   state.notes.forEach(n=>{const i=n.tags.indexOf(oldName);if(i>=0){n.tags[i]=newName;if(state.isConnected)saveNoteToSB(n).catch(()=>{});}});
   state.files.forEach(f=>{const i=f.tags.indexOf(oldName);if(i>=0){f.tags[i]=newName;if(state.isConnected)saveFileToSB(f).catch(()=>{});}});
   tag.name=newName;
   if(state.isConnected)await updateTagInSB(tag);
   if(state.filter===oldName)state.filter=newName;
-  closeRename();
-  renderAll();
-  showToast('Tag renomeada.','success');
+  closeRename();renderAll();showToast('Tag renomeada.','success');
 }
 
 async function deleteTagById(id){
   const tag=tagById(id);if(!tag)return;
-  if(!confirm(`Apagar tag "${tag.name}"? As notas não serão apagadas.`))return;
-  // Remove das notas
+  if(!confirm(`Apagar tag "${tag.name}"?`))return;
   state.notes.forEach(n=>{const i=n.tags.indexOf(tag.name);if(i>=0){n.tags.splice(i,1);if(state.isConnected)saveNoteToSB(n).catch(()=>{});}});
   state.files.forEach(f=>{const i=f.tags.indexOf(tag.name);if(i>=0){f.tags.splice(i,1);if(state.isConnected)saveFileToSB(f).catch(()=>{});}});
-  // Remove filhos (promove para root)
   childTags(id).forEach(c=>{c.parent_id=null;if(state.isConnected)updateTagInSB(c).catch(()=>{});});
   state.tags=state.tags.filter(t=>t.id!==id);
   if(state.isConnected)await deleteTagFromSB(id);
   if(state.filter===tag.name)state.filter='all';
-  renderAll();
-  showToast('Tag apagada.','success');
+  renderAll();showToast('Tag apagada.','success');
 }
 
 function filterByTag(el,tag){
   document.querySelectorAll('.tag-item').forEach(i=>i.classList.remove('active'));
   el.classList.add('active');state.filter=tag;
-  const lbl=tag==='all'?'Todas':tag==='__fav__'?'Favoritos':`Tag: ${tag}`;
-  document.getElementById('filterLabel').textContent=lbl;
+  document.getElementById('filterLabel').textContent=tag==='all'?'Todas':tag==='__fav__'?'Favoritos':`Tag: ${tag}`;
   renderContent();
 }
-
-function toggleTagExpand(id,btnEl){
-  if(state.expandedTags.has(id)){state.expandedTags.delete(id);btnEl.classList.remove('open');}
-  else{state.expandedTags.add(id);btnEl.classList.add('open');}
-  const children=document.getElementById('tag-children-'+id);
-  if(children)children.style.display=state.expandedTags.has(id)?'':'none';
+function toggleTagExpand(id){
+  if(state.expandedTags.has(id))state.expandedTags.delete(id);else state.expandedTags.add(id);
+  const ch=document.getElementById('tag-ch-'+id);
+  const btn=document.getElementById('tag-exp-'+id);
+  if(ch)ch.style.display=state.expandedTags.has(id)?'flex':'none';
+  if(btn)btn.classList.toggle('open',state.expandedTags.has(id));
 }
 function expandAllTags(){state.tags.forEach(t=>state.expandedTags.add(t.id));renderSidebar();}
 function collapseAllTags(){state.expandedTags.clear();renderSidebar();}
@@ -758,50 +743,92 @@ async function toggleFavorite(id,ev){
 function renderAll(){renderSidebar();renderContent();}
 
 function renderSidebar(){
-  // Favoritos
   const favCount=state.notes.filter(n=>n.favorited).length;
   document.getElementById('countFav').textContent=favCount;
   document.getElementById('favAllItem').classList.toggle('active',state.filter==='__fav__');
 
-  // Tags
   const list=document.getElementById('tagList');
-  // Mantém o item "Todas"
-  list.innerHTML=`<div class="tag-item${state.filter==='all'?' active':''}" data-tag="all" onclick="filterByTag(this,'all')"><span class="tag-label">📋 Todas</span><span class="tag-count" id="countAll">${state.notes.length+state.files.length}</span></div>`;
+  const total=state.notes.length+state.files.length;
+  list.innerHTML=`<div class="tag-item${state.filter==='all'?' active':''}" data-tag="all" onclick="filterByTag(this,'all')"><span class="tag-label">📋 Todas</span><span class="tag-count">${total}</span></div>`;
+  document.getElementById('countAll').textContent=total;
 
-  function buildTagItem(tag,depth){
+  function buildItem(tag){
     const children=childTags(tag.id);
     const hasChildren=children.length>0;
+    const desc=allDescendantNames(tag.name);
     const allItems=[...state.notes,...state.files];
-    const descendantNames=allDescendantNames(tag.name);
-    const count=allItems.filter(i=>i.tags&&i.tags.some(t=>descendantNames.includes(t))).length;
+    const count=allItems.filter(i=>i.tags&&i.tags.some(t=>desc.includes(t))).length;
     const isActive=state.filter===tag.name;
-    const isExpanded=state.expandedTags.has(tag.id);
+    const isExp=state.expandedTags.has(tag.id);
 
-    const div=document.createElement('div');
-    div.innerHTML=`
-      <div class="tag-item${isActive?' active':''}" data-tag="${esc(tag.name)}" onclick="filterByTag(this,'${esc(tag.name)}')">
-        ${hasChildren?`<button class="tag-expand-btn${isExpanded?' open':''}" id="expand-${tag.id}"
-          onclick="event.stopPropagation();toggleTagExpand('${tag.id}',this)">▶</button>`:'<span style="width:14px;display:inline-block;flex-shrink:0"></span>'}
-        <span class="tag-label">🏷 ${esc(tag.name)}</span>
-        <span class="tag-count">${count}</span>
-        <div class="tag-actions">
-          <button class="tag-action-btn" onclick="event.stopPropagation();renameTagById('${tag.id}')" title="Renomear">✎</button>
-          <button class="tag-action-btn" onclick="event.stopPropagation();deleteTagById('${tag.id}')" title="Apagar">✕</button>
-        </div>
-      </div>
-      ${hasChildren?`<div class="tag-children" id="tag-children-${tag.id}" style="display:${isExpanded?'':'none'}">${''}</div>`:''}
-    `;
-    list.appendChild(div.firstElementChild);
+    const wrap=document.createElement('div');
+    const item=document.createElement('div');
+    item.className='tag-item'+(isActive?' active':'');
+    item.dataset.tag=tag.name;
+    item.onclick=()=>filterByTag(item,tag.name);
+    item.innerHTML=
+      (hasChildren
+        ?`<button class="tag-expand-btn${isExp?' open':''}" id="tag-exp-${tag.id}" onclick="event.stopPropagation();toggleTagExpand('${tag.id}')">▶</button>`
+        :`<span style="width:14px;display:inline-block;flex-shrink:0"></span>`)
+      +`<span class="tag-label">🏷 ${esc(tag.name)}</span>`
+      +`<span class="tag-count">${count}</span>`
+      +`<div class="tag-actions">`
+      +`<button class="tag-action-btn" onclick="event.stopPropagation();renameTagById('${tag.id}')" title="Renomear">✎</button>`
+      +`<button class="tag-action-btn" onclick="event.stopPropagation();deleteTagById('${tag.id}')" title="Apagar">✕</button>`
+      +`</div>`;
+    wrap.appendChild(item);
     if(hasChildren){
-      const childrenContainer=list.querySelector('#tag-children-'+tag.id);
-      if(childrenContainer)children.forEach(c=>buildTagItem(c,depth+1));
+      const ch=document.createElement('div');
+      ch.className='tag-children';
+      ch.id='tag-ch-'+tag.id;
+      ch.style.display=isExp?'flex':'none';
+      children.forEach(c=>ch.appendChild(buildItemEl(c)));
+      wrap.appendChild(ch);
     }
+    list.appendChild(wrap);
   }
-  rootTags().forEach(t=>buildTagItem(t,0));
+
+  function buildItemEl(tag){
+    const children=childTags(tag.id);
+    const hasChildren=children.length>0;
+    const desc=allDescendantNames(tag.name);
+    const allItems=[...state.notes,...state.files];
+    const count=allItems.filter(i=>i.tags&&i.tags.some(t=>desc.includes(t))).length;
+    const isActive=state.filter===tag.name;
+    const isExp=state.expandedTags.has(tag.id);
+    const wrap=document.createElement('div');
+    const item=document.createElement('div');
+    item.className='tag-item'+(isActive?' active':'');
+    item.dataset.tag=tag.name;
+    item.onclick=()=>filterByTag(item,tag.name);
+    item.innerHTML=
+      (hasChildren
+        ?`<button class="tag-expand-btn${isExp?' open':''}" id="tag-exp-${tag.id}" onclick="event.stopPropagation();toggleTagExpand('${tag.id}')">▶</button>`
+        :`<span style="width:14px;display:inline-block;flex-shrink:0"></span>`)
+      +`<span class="tag-label">🏷 ${esc(tag.name)}</span>`
+      +`<span class="tag-count">${count}</span>`
+      +`<div class="tag-actions">`
+      +`<button class="tag-action-btn" onclick="event.stopPropagation();renameTagById('${tag.id}')" title="Renomear">✎</button>`
+      +`<button class="tag-action-btn" onclick="event.stopPropagation();deleteTagById('${tag.id}')" title="Apagar">✕</button>`
+      +`</div>`;
+    wrap.appendChild(item);
+    if(hasChildren){
+      const ch=document.createElement('div');
+      ch.className='tag-children';
+      ch.id='tag-ch-'+tag.id;
+      ch.style.display=isExp?'flex':'none';
+      children.forEach(c=>ch.appendChild(buildItemEl(c)));
+      wrap.appendChild(ch);
+    }
+    return wrap;
+  }
+
+  rootTags().forEach(t=>buildItem(t));
 }
 
 function renderContent(){
-  const grid=document.getElementById('contentGrid'),search=document.getElementById('searchInput').value.toLowerCase();
+  const grid=document.getElementById('contentGrid');
+  const search=document.getElementById('searchInput').value.toLowerCase();
   let notes=state.notes,files=state.files;
   if(state.filter==='__fav__'){notes=notes.filter(n=>n.favorited);files=[];}
   else if(state.filter!=='all'){
@@ -810,10 +837,21 @@ function renderContent(){
     files=files.filter(f=>f.tags&&f.tags.some(t=>names.includes(t)));
   }
   if(search){
-    notes=notes.filter(n=>n.title.toLowerCase().includes(search)||n.tags.some(t=>t.includes(search)));
+    // FIX: busca em título, tags E conteúdo (plain_content das não cifradas)
+    notes=notes.filter(n=>{
+      const titleMatch=n.title.toLowerCase().includes(search);
+      const tagMatch=n.tags.some(t=>t.includes(search));
+      // Busca no conteúdo: HTML da nota (strip tags para busca)
+      const plainForSearch=(n._plainContent||n.plainContent||'').replace(/<[^>]*>/g,' ').toLowerCase();
+      const contentMatch=!n.encrypt&&plainForSearch.includes(search);
+      return titleMatch||tagMatch||contentMatch;
+    });
     files=files.filter(f=>f.title.toLowerCase().includes(search)||f.filename.toLowerCase().includes(search)||(f.description||'').toLowerCase().includes(search)||f.tags.some(t=>t.includes(search)));
   }
-  if(!notes.length&&!files.length){grid.innerHTML=`<div class="empty-state"><h3>Nenhum item encontrado.</h3><p>${(state.notes.length+state.files.length)===0?'Use ✏ e 📎 para começar.':'Tente outro filtro ou busca.'}</p></div>`;return;}
+  if(!notes.length&&!files.length){
+    grid.innerHTML=`<div class="empty-state"><h3>Nenhum item encontrado.</h3><p>${(state.notes.length+state.files.length)===0?'Use ✏ e 📎 para começar.':'Tente outro filtro ou busca.'}</p></div>`;
+    return;
+  }
   let html='';
   if(notes.length){html+=`<div class="type-divider">✏ Anotações <span style="opacity:.45">(${notes.length})</span></div>`;html+=notes.map(noteCardHTML).join('');}
   if(files.length){html+=`<div class="type-divider">📎 Arquivos <span style="opacity:.45">(${files.length})</span></div>`;html+=files.map(fileCardHTML).join('');}
@@ -823,30 +861,31 @@ function renderContent(){
 function noteCardHTML(n){
   const locked=n.encrypt&&!!n.encryptedContent&&!state.globalCryptoUnlocked;
   let preview='';
-  if(n.encrypt&&state.globalCryptoUnlocked&&n._plainText){preview=n._plainText.slice(0,120);}
-  else if(!n.encrypt){preview=(n.plainText||'').slice(0,120);}
-  else{preview='⬛⬛⬛⬛⬛ ⬛⬛⬛ ⬛⬛⬛⬛⬛⬛ ⬛⬛';}
+  if(n.encrypt&&state.globalCryptoUnlocked&&n._plainContent){
+    preview=(n._plainContent||'').replace(/<[^>]*>/g,' ').slice(0,150);
+  } else if(!n.encrypt){
+    // strip HTML tags para preview
+    preview=(n.plainContent||'').replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ').trim().slice(0,150);
+  } else {
+    preview='⬛⬛⬛⬛⬛ ⬛⬛⬛ ⬛⬛⬛⬛⬛⬛ ⬛⬛';
+  }
   const tags=n.tags.map(t=>`<span class="tag-chip">${esc(t)}</span>`).join('');
   const date=n.updatedAt?new Date(n.updatedAt).toLocaleDateString('pt-BR'):'';
   const badge=n.encrypt?(locked?'🔒':'🔓'):'✏';
-  const favCls=n.favorited?' fav-card':'';
-  return `<div class="note-card ${locked?'locked-card':'unlocked-card'}${favCls}" onclick="openNote('${n.id}')">
+  return `<div class="note-card ${locked?'locked-card':'unlocked-card'}${n.favorited?' fav-card':''}" onclick="openNote('${n.id}')">
     <div class="card-actions" onclick="event.stopPropagation()">
       <button class="icon-btn${n.favorited?' fav-active':''}" onclick="toggleFavorite('${n.id}',event)" title="${n.favorited?'Desfavoritar':'Favoritar'}">★</button>
       <button class="icon-btn" onclick="exportNoteById('${n.id}')" title="Exportar">⬇</button>
       <button class="icon-btn delete" onclick="deleteNote('${n.id}')" title="Apagar">🗑</button>
     </div>
-    <div class="card-header">
-      <div class="card-title">${esc(n.title||'Sem título')}</div>
-      <span class="card-badge">${badge}</span>
-    </div>
-    <div class="note-preview${locked?' encrypted-preview':''}">${esc(preview)}</div>
+    <div class="card-header"><div class="card-title">${esc(n.title||'Sem título')}</div><span class="card-badge">${badge}</span></div>
+    <div class="note-preview${locked?' encrypted-preview':''}">${locked?preview:esc(preview)}</div>
     <div class="card-footer"><div class="card-tags">${tags}</div><span class="card-date">${date}</span></div>
   </div>`;
 }
 
 function fileCardHTML(f){
-  const ext=f.filename.includes('.')?f.filename.split('.').pop().toUpperCase():'ARQ',icon=fileIcon(f.mimeType),size=formatSize(f.sizeBytes);
+  const ext=f.filename.includes('.')?f.filename.split('.').pop().toUpperCase():'ARQ';
   const tags=f.tags.map(t=>`<span class="tag-chip">${esc(t)}</span>`).join('');
   const date=f.updatedAt?new Date(f.updatedAt).toLocaleDateString('pt-BR'):'';
   return `<div class="file-card" onclick="openFileViewer('${f.id}')">
@@ -854,49 +893,61 @@ function fileCardHTML(f){
       <button class="icon-btn download" onclick="downloadFile('${f.id}')" title="Baixar">⬇</button>
       <button class="icon-btn delete" onclick="deleteFile('${f.id}')" title="Apagar">🗑</button>
     </div>
-    <div class="card-header"><div class="card-title">${esc(f.title||f.filename)}</div><span class="card-badge">${icon}</span></div>
-    <div class="file-meta"><span class="file-ext-badge">${ext}</span><span class="file-size">${size}</span></div>
+    <div class="card-header"><div class="card-title">${esc(f.title||f.filename)}</div><span class="card-badge">${fileIcon(f.mimeType)}</span></div>
+    <div class="file-meta"><span class="file-ext-badge">${ext}</span><span class="file-size">${formatSize(f.sizeBytes)}</span></div>
     ${f.description?`<div class="file-desc">${esc(f.description)}</div>`:''}
     <div class="card-footer"><div class="card-tags">${tags}</div><span class="card-date">${date}</span></div>
   </div>`;
 }
 
-function fileIcon(m){if(!m)return'📄';if(m.startsWith('image/'))return'🖼';if(m==='application/pdf')return'📕';if(m.includes('spreadsheet')||m.includes('excel')||m.includes('csv'))return'📊';if(m.includes('word')||m.includes('document'))return'📝';if(m.includes('zip')||m.includes('rar')||m.includes('7z')||m.includes('tar'))return'📦';if(m.startsWith('video/'))return'🎬';if(m.startsWith('audio/'))return'🎵';if(m.startsWith('text/')||m.includes('json')||m.includes('javascript')||m.includes('html'))return'💻';return'📄';}
+function fileIcon(m){if(!m)return'📄';if(m.startsWith('image/'))return'🖼';if(m==='application/pdf')return'📕';if(m.includes('spreadsheet')||m.includes('excel')||m.includes('csv'))return'📊';if(m.includes('word')||m.includes('document'))return'📝';if(m.includes('zip')||m.includes('rar')||m.includes('7z'))return'📦';if(m.startsWith('video/'))return'🎬';if(m.startsWith('audio/'))return'🎵';if(m.startsWith('text/')||m.includes('json')||m.includes('javascript'))return'💻';return'📄';}
 function formatSize(b){if(!b)return'—';if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 /* ── NOTE EDITOR ── */
+function showEditorMode(mode){
+  // mode: 'rich' (Quill visível) | 'locked' (textarea visível, Quill oculto)
+  const qt=document.getElementById('quillToolbar');
+  const qe=document.getElementById('quillEditor');
+  const ta=document.getElementById('noteTextarea');
+  if(mode==='rich'){qt.style.display='';qe.style.display='';ta.style.display='none';}
+  else{qt.style.display='none';qe.style.display='none';ta.style.display='';}
+}
+
 function openNewNote(){
+  initQuill();
   state.editingNoteId=null;state.isNewNote=true;state.isDecrypted=false;state.noteTags=[];
   document.getElementById('noteTitleInput').value='';
-  document.getElementById('noteTextarea').value='';
-  document.getElementById('noteTextarea').disabled=false;
+  quill.setContents([]);
   document.getElementById('encryptToggle').checked=false;
   document.getElementById('cryptoBar').style.display='none';
+  showEditorMode('rich');
   populateNoteTagSelect();renderNoteTags();
   document.getElementById('editorHint').textContent='Nova nota.';
   document.getElementById('editorOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('noteTitleInput').focus(),80);
 }
 
 function openNote(id){
+  initQuill();
   const note=state.notes.find(n=>n.id===id);if(!note)return;
   state.editingNoteId=id;state.isNewNote=false;state.isDecrypted=false;state.noteTags=[...note.tags];
   document.getElementById('noteTitleInput').value=note.title;
   document.getElementById('encryptToggle').checked=!!note.encrypt;
-  // Se está decifrada globalmente
-  if(note.encrypt&&state.globalCryptoUnlocked&&note._plainText!==undefined){
-    document.getElementById('noteTextarea').value=note._plainText||'';
-    document.getElementById('noteTextarea').disabled=false;
+  if(note.encrypt&&state.globalCryptoUnlocked&&note._plainContent!==undefined){
+    quill.clipboard.dangerouslyPasteHTML(note._plainContent||'');
+    showEditorMode('rich');
     document.getElementById('cryptoBar').style.display='flex';
     updateCryptoBar('unlocked');
   } else if(note.encrypt&&note.encryptedContent){
-    document.getElementById('noteTextarea').value='';
-    document.getElementById('noteTextarea').disabled=true;
+    quill.setContents([]);
+    showEditorMode('locked');
     document.getElementById('cryptoBar').style.display='flex';
     updateCryptoBar('locked');
   } else {
-    document.getElementById('noteTextarea').value=note.plainText||'';
-    document.getElementById('noteTextarea').disabled=false;
+    // Nota não cifrada: carrega HTML no Quill
+    quill.clipboard.dangerouslyPasteHTML(note.plainContent||'');
+    showEditorMode('rich');
     document.getElementById('cryptoBar').style.display='none';
   }
   populateNoteTagSelect();renderNoteTags();
@@ -907,22 +958,21 @@ function openNote(id){
 function onEncryptToggleChange(){
   const checked=document.getElementById('encryptToggle').checked;
   document.getElementById('cryptoBar').style.display=checked?'flex':'none';
-  if(!checked){document.getElementById('noteTextarea').disabled=false;}
+  if(!checked)showEditorMode('rich');
 }
 
 function closeEditor(){
   state.isDecrypted=false;
   document.getElementById('editorOverlay').classList.remove('open');
+  if(quill)quill.setContents([]);
   document.getElementById('noteTextarea').value='';
-  document.getElementById('noteTextarea').disabled=true;
 }
 
 function updateCryptoBar(mode){
   const bar=document.getElementById('cryptoBar'),st=document.getElementById('cryptoStatus'),txt=document.getElementById('cryptoStatusText');
-  const bd=document.getElementById('btnDecrypt'),be=document.getElementById('btnEncrypt'),ta=document.getElementById('noteTextarea');
-  const bex=document.getElementById('btnExportNote');
-  if(mode==='locked'){bar.style.display='flex';st.className='crypto-status locked';txt.textContent='Nota cifrada — Decifrar para editar.';bd.style.display='';be.style.display='none';bex.style.display='';ta.disabled=true;}
-  else if(mode==='unlocked'){bar.style.display='flex';st.className='crypto-status unlocked';txt.textContent='Nota decifrada — editando.';bd.style.display='none';be.style.display='';bex.style.display='';ta.disabled=false;}
+  const bd=document.getElementById('btnDecrypt'),be=document.getElementById('btnEncrypt');
+  if(mode==='locked'){bar.style.display='flex';st.className='crypto-status locked';txt.textContent='Nota cifrada — Decifrar para editar.';bd.style.display='';be.style.display='none';showEditorMode('locked');}
+  else if(mode==='unlocked'){bar.style.display='flex';st.className='crypto-status unlocked';txt.textContent='Nota decifrada — editando.';bd.style.display='none';be.style.display='';showEditorMode('rich');}
 }
 
 /* ── PASSWORD ── */
@@ -940,15 +990,15 @@ function cancelPass(){document.getElementById('passOverlay').classList.remove('o
 
 async function requestDecrypt(){
   const note=state.notes.find(n=>n.id===state.editingNoteId);if(!note)return;
-  // Se já está decifrara globalmente
-  if(state.globalCryptoUnlocked&&note._plainText!==undefined){
-    document.getElementById('noteTextarea').value=note._plainText||'';
+  if(state.globalCryptoUnlocked&&note._plainContent!==undefined){
+    quill.clipboard.dangerouslyPasteHTML(note._plainContent||'');
     state.isDecrypted=true;updateCryptoBar('unlocked');return;
   }
   try{
-    const pass=await askPassword('decrypt'),plain=await decryptText(note.encryptedContent,pass);
+    const pass=await askPassword('decrypt');
+    const plain=await decryptText(note.encryptedContent,pass);
     note._pass=pass;
-    document.getElementById('noteTextarea').value=plain;
+    quill.clipboard.dangerouslyPasteHTML(plain);
     state.isDecrypted=true;updateCryptoBar('unlocked');
   }catch(e){
     if(e.message==='cancelled')return;
@@ -961,32 +1011,33 @@ async function requestDecrypt(){
 
 async function encryptAndLock(){
   const note=state.notes.find(n=>n.id===state.editingNoteId);if(!note||!note._pass)return;
-  note.encryptedContent=await encryptText(document.getElementById('noteTextarea').value,note._pass);
+  const htmlContent=quill.root.innerHTML;
+  note.encryptedContent=await encryptText(htmlContent,note._pass);
   delete note._pass;state.isDecrypted=false;
-  document.getElementById('noteTextarea').value='';
-  updateCryptoBar('locked');showToast('Nota cifrada.','success');
-  await persistNote(note);renderAll();
+  quill.setContents([]);updateCryptoBar('locked');
+  showToast('Nota cifrada.','success');await persistNote(note);renderAll();
 }
 
-/* ── SAVE NOTE ── */
+/* ── SAVE NOTE (FIX: salva plainContent para não cifradas) ── */
 async function saveNote(){
-  const title=document.getElementById('noteTitleInput').value.trim(),text=document.getElementById('noteTextarea').value;
+  const title=document.getElementById('noteTitleInput').value.trim();
   const shouldEncrypt=document.getElementById('encryptToggle').checked;
   if(!title){showToast('Informe um título.','error');return;}
+
+  const htmlContent=quill?quill.root.innerHTML:'';  // HTML do editor rico
+
   let note;
   if(state.isNewNote){
     if(shouldEncrypt){
       let pass;
-      try{
-        // Usa senha global se disponível, senão pede
-        pass=state.globalPass||(await askPassword('create'));
-        if(!state.globalPass)state.globalPass=pass;
-      }catch(e){return;}
-      const enc=await encryptText(text||'',pass);
-      note={id:null,title,encryptedContent:enc,plainText:'',tags:[...state.noteTags],
+      try{pass=state.globalPass||(await askPassword('create'));if(!state.globalPass)state.globalPass=pass;}
+      catch(e){return;}
+      const enc=await encryptText(htmlContent||'',pass);
+      note={id:null,title,encryptedContent:enc,plainContent:'',tags:[...state.noteTags],
         createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),encrypt:true,favorited:false};
     } else {
-      note={id:null,title,encryptedContent:'',plainText:text||'',tags:[...state.noteTags],
+      // FIX: salva o HTML no campo plainContent
+      note={id:null,title,encryptedContent:'',plainContent:htmlContent||'',tags:[...state.noteTags],
         createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),encrypt:false,favorited:false};
     }
     state.notes.unshift(note);
@@ -996,14 +1047,17 @@ async function saveNote(){
     if(shouldEncrypt){
       if(state.isDecrypted||state.globalCryptoUnlocked){
         const pass=note._pass||state.globalPass;
-        if(!pass){try{note._pass=await askPassword('create');} catch(e){return;}}
-        note.encryptedContent=await encryptText(text,note._pass||state.globalPass);
-        if(state.globalCryptoUnlocked)note._plainText=text;
+        if(!pass){try{note._pass=await askPassword('create');}catch(e){return;}}
+        note.encryptedContent=await encryptText(htmlContent,note._pass||state.globalPass);
+        if(state.globalCryptoUnlocked)note._plainContent=htmlContent;
+        note.plainContent='';
         delete note._pass;state.isDecrypted=false;
       }
     } else {
-      note.plainText=text;note.encryptedContent='';
-      delete note._plainText;
+      // FIX: nota não cifrada salva o HTML
+      note.plainContent=htmlContent;
+      note.encryptedContent='';
+      delete note._plainContent;
     }
     note.updatedAt=new Date().toISOString();
   }
@@ -1021,25 +1075,22 @@ async function deleteNote(id){
 }
 
 /* ── NOTE TAGS UI ── */
-function populateNoteTagSelect(){
-  const sel=document.getElementById('noteTagSelect');sel.innerHTML='<option value="">+ tag</option>';
-  state.tags.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.parent_id?'  '+t.name:t.name;sel.appendChild(o);});
-}
+function populateNoteTagSelect(){const sel=document.getElementById('noteTagSelect');sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.parent_id?'  └ '+t.name:t.name;sel.appendChild(o);});}
 function addTagToNote(){const sel=document.getElementById('noteTagSelect'),val=sel.value;if(!val||state.noteTags.includes(val)){sel.value='';return;}state.noteTags.push(val);sel.value='';renderNoteTags();}
 function removeTagFromNote(tag){state.noteTags=state.noteTags.filter(t=>t!==tag);renderNoteTags();}
 function renderNoteTags(){
   const area=document.getElementById('noteTagsArea');area.innerHTML='';
   state.noteTags.forEach(t=>{const b=document.createElement('button');b.className='tag-chip-remove';b.innerHTML=`${esc(t)} <span style="opacity:.5">✕</span>`;b.onclick=()=>removeTagFromNote(t);area.appendChild(b);});
   const sel=document.createElement('select');sel.className='tags-select';sel.id='noteTagSelect';sel.onchange=addTagToNote;
-  sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.parent_id?'  '+t.name:t.name;sel.appendChild(o);});
+  sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.parent_id?'  └ '+t.name:t.name;sel.appendChild(o);});
   area.appendChild(sel);
 }
 
 /* ── EXPORT / IMPORT NOTE ── */
 function exportCurrentNote(){const note=state.notes.find(n=>n.id===state.editingNoteId);if(!note)return;_exportNote(note);}
 function exportNoteById(id){const note=state.notes.find(n=>n.id===id);if(!note)return;_exportNote(note);}
-function _exportNote(note){const p={_type:'arquivo-pessoal-note',_version:1,title:note.title,encryptedContent:note.encryptedContent,tags:note.tags,createdAt:note.createdAt,exportedAt:new Date().toISOString()};const slug=(note.title||'nota').replace(/[^a-z0-9]/gi,'_').toLowerCase().slice(0,40);dlJSON(p,`${slug}.anote`);showToast('Nota exportada (.anote)!','success');}
-function importNote(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(d._type!=='arquivo-pessoal-note'||!d.encryptedContent)throw new Error('Ficheiro .anote inválido.');const note={id:null,title:d.title||'Nota importada',encryptedContent:d.encryptedContent,plainText:'',tags:d.tags||[],createdAt:d.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString(),encrypt:true,favorited:false};state.notes.unshift(note);persistNote(note).then(()=>{renderAll();showToast('Nota importada!','success');});}catch(err){showToast('Erro: '+err.message,'error');}ev.target.value='';};r.readAsText(file);}
+function _exportNote(note){const p={_type:'arquivo-pessoal-note',_version:2,title:note.title,encryptedContent:note.encryptedContent,plainContent:note.plainContent,tags:note.tags,encrypt:note.encrypt,createdAt:note.createdAt,exportedAt:new Date().toISOString()};const slug=(note.title||'nota').replace(/[^a-z0-9]/gi,'_').toLowerCase().slice(0,40);dlJSON(p,`${slug}.anote`);showToast('Nota exportada!','success');}
+function importNote(ev){const file=ev.target.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);const note={id:null,title:d.title||'Nota importada',encryptedContent:d.encryptedContent||'',plainContent:d.plainContent||'',tags:d.tags||[],createdAt:d.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString(),encrypt:!!d.encrypt,favorited:false};state.notes.unshift(note);persistNote(note).then(()=>{renderAll();showToast('Nota importada!','success');});}catch(err){showToast('Erro: '+err.message,'error');}ev.target.value='';};r.readAsText(file);}
 function dlJSON(obj,name){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 
 /* ── FILE UPLOAD ── */
@@ -1058,15 +1109,7 @@ function openFileUpload(existingId){
 function closeFileUpload(){document.getElementById('fileUploadOverlay').classList.remove('open');state.selectedFile=null;state.selectedFileB64=null;}
 function handleFileSelect(ev){const file=ev.target.files[0];if(!file)return;if(file.size>8*1024*1024){showToast('Arquivo muito grande (máx. 8 MB).','error');return;}state.selectedFile=file;if(!document.getElementById('fileTitle').value)document.getElementById('fileTitle').value=file.name.replace(/\.[^.]+$/,'');document.getElementById('selFileName').textContent=file.name;document.getElementById('selFileSize').textContent=formatSize(file.size);document.getElementById('selectedFileInfo').classList.add('visible');const reader=new FileReader();reader.onload=e=>{state.selectedFileB64=e.target.result.split(',')[1];};reader.readAsDataURL(file);}
 function clearSelectedFile(){state.selectedFile=null;state.selectedFileB64=null;document.getElementById('fileInput').value='';document.getElementById('selectedFileInfo').classList.remove('visible');}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  const dz=document.getElementById('dropZone');
-  if(!dz)return;
-  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
-  dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
-  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const file=e.dataTransfer.files[0];if(file){const dt=new DataTransfer();dt.items.add(file);document.getElementById('fileInput').files=dt.files;handleFileSelect({target:{files:[file]}});}});
-});
-
+document.addEventListener('DOMContentLoaded',()=>{const dz=document.getElementById('dropZone');if(!dz)return;dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over');const file=e.dataTransfer.files[0];if(file){const dt=new DataTransfer();dt.items.add(file);document.getElementById('fileInput').files=dt.files;handleFileSelect({target:{files:[file]}});}});});
 async function saveFile(){
   const title=document.getElementById('fileTitle').value.trim(),desc=document.getElementById('fileDesc').value.trim();
   if(!title){showToast('Informe um título.','error');return;}
@@ -1074,7 +1117,7 @@ async function saveFile(){
     if(!state.selectedFile||!state.selectedFileB64){showToast('Selecione um arquivo.','error');return;}
     const file={id:null,title,description:desc,filename:state.selectedFile.name,mimeType:state.selectedFile.type||'application/octet-stream',sizeBytes:state.selectedFile.size,dataB64:state.selectedFileB64,tags:[...state.fileTags],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
     state.files.unshift(file);await persistFile(file);
-  } else {
+  }else{
     const file=state.files.find(f=>f.id===state.editingFileId);
     file.title=title;file.description=desc;file.tags=[...state.fileTags];file.updatedAt=new Date().toISOString();
     await persistFile(file);
@@ -1086,14 +1129,14 @@ async function deleteFile(id){if(!confirm('Apagar este arquivo?'))return;state.f
 function downloadFile(id){const f=state.files.find(x=>x.id===id);if(!f)return;const a=document.createElement('a');a.href=`data:${f.mimeType};base64,${f.dataB64}`;a.download=f.filename;a.click();}
 
 /* ── FILE TAGS UI ── */
-function populateFileTagSelect(){const sel=document.getElementById('fileTagSelect');sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.parent_id?'  '+t.name:t.name;sel.appendChild(o);});}
+function populateFileTagSelect(){const sel=document.getElementById('fileTagSelect');sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.parent_id?'  └ '+t.name:t.name;sel.appendChild(o);});}
 function addTagToFile(){const sel=document.getElementById('fileTagSelect'),val=sel.value;if(!val||state.fileTags.includes(val)){sel.value='';return;}state.fileTags.push(val);sel.value='';renderFileTags();}
 function removeTagFromFile(tag){state.fileTags=state.fileTags.filter(t=>t!==tag);renderFileTags();}
 function renderFileTags(){
   const area=document.getElementById('fileTagsArea');area.innerHTML='';
   state.fileTags.forEach(t=>{const b=document.createElement('button');b.className='tag-chip-remove';b.innerHTML=`${esc(t)} <span style="opacity:.5">✕</span>`;b.onclick=()=>removeTagFromFile(t);area.appendChild(b);});
   const sel=document.createElement('select');sel.className='tags-select';sel.id='fileTagSelect';sel.onchange=addTagToFile;
-  sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.parent_id?'  '+t.name:t.name;sel.appendChild(o);});
+  sel.innerHTML='<option value="">+ tag</option>';state.tags.forEach(t=>{const o=document.createElement('option');o.value=t.name;o.textContent=t.parent_id?'  └ '+t.name:t.name;sel.appendChild(o);});
   area.appendChild(sel);
 }
 
@@ -1112,7 +1155,7 @@ function openFileViewer(id){
   const dataUrl=`data:${f.mimeType};base64,${f.dataB64}`;
   if(f.mimeType.startsWith('image/')){const img=document.createElement('img');img.className='preview-image';img.src=dataUrl;img.alt=f.filename;area.appendChild(img);}
   else if(f.mimeType==='application/pdf'){const iframe=document.createElement('iframe');iframe.className='preview-pdf-frame';iframe.src=dataUrl;area.appendChild(iframe);}
-  else if(f.mimeType.startsWith('text/')||f.mimeType.includes('json')||f.mimeType.includes('xml')){try{const bytes=Uint8Array.from(atob(f.dataB64),c=>c.charCodeAt(0)),text=new TextDecoder().decode(bytes),div=document.createElement('div');div.className='preview-text-block';div.textContent=text;area.appendChild(div);}catch(e){area.innerHTML=genericPreview(f);}}
+  else if(f.mimeType.startsWith('text/')||f.mimeType.includes('json')){try{const bytes=Uint8Array.from(atob(f.dataB64),c=>c.charCodeAt(0)),text=new TextDecoder().decode(bytes),div=document.createElement('div');div.className='preview-text-block';div.textContent=text;area.appendChild(div);}catch(e){area.innerHTML=genericPreview(f);}}
   else area.innerHTML=genericPreview(f);
   document.getElementById('fileViewerOverlay').classList.add('open');
 }
@@ -1131,20 +1174,14 @@ function showToast(msg,type='info'){const t=document.getElementById('toast');t.t
 
 /* ── PWA ── */
 function setupPWA(){
-  const manifest={name:'Notas Pessoais',short_name:'Notas',description:'Notas Pessoais',start_url:'./',display:'standalone',background_color:'#1a1410',theme_color:'#1a1410',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1410'/%3E%3Ctext y='.9em' font-size='85'%3E%F0%9F%93%9C%3C/text%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'}]};
+  const manifest={name:'Notas Pessoais',short_name:'Notas',start_url:'./',display:'standalone',background_color:'#1a1410',theme_color:'#1a1410',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231a1410'/%3E%3Ctext y='.9em' font-size='85'%3E%F0%9F%93%9C%3C/text%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'}]};
   const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
   document.getElementById('pwaManifest').href=URL.createObjectURL(blob);
-  if('serviceWorker' in navigator){
-    const sw=`const C='notas-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>clients.claim()));});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));});`;
-    const swBlob=new Blob([sw],{type:'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:'./'}).catch(()=>{});
-  }
 }
 
-/* ── OVERLAYS CLICK OUTSIDE ── */
+/* ── OVERLAYS ── */
 ['editorOverlay','fileUploadOverlay','fileViewerOverlay','configOverlay','passOverlay','renameOverlay'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(!el)return;
+  const el=document.getElementById(id);if(!el)return;
   el.addEventListener('click',e=>{
     if(e.target!==el)return;
     if(id==='editorOverlay')closeEditor();
@@ -1166,12 +1203,16 @@ async function init(){
     state.accessToken=token;showApp();
     try{await loadFromSupabase();renderAll();showToast('Conectado!','success');}
     catch(e){showToast('Modo local.','info');renderAll();}
-  } else {
+  }else{
     showLoginScreen();
-    if(!state.tags.length)state.tags=[{id:'t1',name:'pessoal',parent_id:null},{id:'t2',name:'trabalho',parent_id:null},{id:'t3',name:'ideias',parent_id:null},{id:'t4',name:'importante',parent_id:null}];
+    if(!state.tags.length)state.tags=[
+      {id:'t1',name:'pessoal',parent_id:null},
+      {id:'t2',name:'trabalho',parent_id:null},
+      {id:'t3',name:'ideias',parent_id:null},
+      {id:'t4',name:'importante',parent_id:null}
+    ];
   }
 }
-
 init();
 </script>
 </body>
